@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'observer.apps.ObserverConfig',
+    'zone.apps.ZoneConfig',
+    'survey.apps.SurveyConfig'
 ]
 
 MIDDLEWARE = [
