@@ -39,7 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'observer.apps.ObserverConfig',
     'zone.apps.ZoneConfig',
-    'survey.apps.SurveyConfig'
+    'survey.apps.SurveyConfig',
+    'surveyversion.apps.SurveyversionConfig',
+    'topic.apps.TopicConfig',
+    'visita.apps.VisitaConfig',
+    'category.apps.CategoryConfig',
+    'subcategory.apps.SubcategoryConfig',
+    'questiontype.apps.QuestiontypeConfig',
+    'question.apps.QuestionConfig',
+    'option.apps.OptionConfig',
+    'response.apps.ResponseConfig'
 ]
 
 MIDDLEWARE = [
