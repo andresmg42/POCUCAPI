@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-lbfw#ag#*cv#15^3^^cw$8!h1zcdw($h7*u_@q*yb@iw88llt^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "rest_framework",
     'observer.apps.ObserverConfig',
     'zone.apps.ZoneConfig',
     'survey.apps.SurveyConfig',
