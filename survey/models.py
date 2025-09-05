@@ -7,7 +7,7 @@ class Survey(models.Model):
     zone= models.ForeignKey(Zone,on_delete=models.CASCADE)
     observer=models.ForeignKey(Observer,on_delete=models.CASCADE)
     survey_version=models.ForeignKey(SurveyVersion,on_delete=models.CASCADE,default=1)
-    url_uploaded_at=models.DateField("date_upload",auto_now=True)
+    created_at=models.DateField("date_upload",auto_now=True)
     url=models.CharField(max_length=200)
     survey_number=models.IntegerField()
     start_date=models.DateField("start_date")
