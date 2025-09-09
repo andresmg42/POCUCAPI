@@ -23,13 +23,11 @@ urlpatterns = [
     path("observer/", include("observer.urls")),
     path("option/", include("option.urls")),
     path("question/", include("question.urls")),
-    path("questiontype/", include("questiontype.urls")),
     path("response/", include("response.urls")),
     path("subcategory/", include("subcategory.urls")),
     path("survey/", include("survey.urls")),
-    path("surveyversion/", include("surveyversion.urls")),
-    path("topic/", include("topic.urls")),
-    path("visita/", include("visita.urls")),
+    path("surveysession/", include("surveysession.urls")),
+    path("visit/", include("visit.urls")),
     path("zone/", include("zone.urls")),
     
 ]

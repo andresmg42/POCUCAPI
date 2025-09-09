@@ -4,4 +4,4 @@ from .models import Observer
 class ObserverSerializer(serializers.ModelSerializer):
     class Meta:
         model=Observer
-        fields=['id','name','email','telephone']
+        fields=['id','name','email']

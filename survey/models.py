@@ -1,18 +1,10 @@
 from django.db import models
-from zone.models import Zone
-from observer.models import Observer
-from surveyversion.models import SurveyVersion
 
 class Survey(models.Model):
-    zone= models.ForeignKey(Zone,on_delete=models.CASCADE)
-    observer=models.ForeignKey(Observer,on_delete=models.CASCADE)
-    survey_version=models.ForeignKey(SurveyVersion,on_delete=models.CASCADE,default=1)
-    created_at=models.DateField("date_upload",auto_now=True)
-    url=models.CharField(max_length=200)
-    survey_number=models.IntegerField()
-    start_date=models.DateField("start_date")
-    end_date=models.DateField("end_date")
-    observational_distance=models.FloatField()
+    name=models.CharField(max_length=50)
+    topic=models.CharField(max_length=20)
+    version=models.CharField(max_length=10)
+    description=models.CharField(max_length=100)
 
     def __str__(self):
-        return self.survey_number
+        return self.name

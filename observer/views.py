@@ -13,13 +13,10 @@ def index(request):
 def registre_obsever(request):
 
     data=request.data
-    newdata={
-        'name':data['nombre'],
-        'email':data['dirección de correo electrónico'],
-        'telephone':data['telefono']
-    }
 
-    serializer=ObserverSerializer(data=newdata)
+    print(data)
+    
+    serializer=ObserverSerializer(data=data)
     if serializer.is_valid():
 
         validated_data=serializer.validated_data
@@ -28,7 +25,6 @@ def registre_obsever(request):
 
         if  not created:
             observer.name=validated_data['name']
-            observer.telephone=validated_data['telephone']
             print("observer whit this email already exists")
             return response.Response({'message':'observer whit this email already exists'})
         else:
@@ -36,5 +32,6 @@ def registre_obsever(request):
         
     else:
         print("user not valid")
+        return response.Response({"message":"user not valid"},status=status.HTTP_400_BAD_REQUEST)
 
     return response.Response({"message":"user created or updated succesfully"}, status=status.HTTP_200_OK)
