@@ -23,10 +23,12 @@ def registre_obsever(request):
         
         observer,created=Observer.objects.get_or_create(email=validated_data['email'],defaults=validated_data)
 
+        observer_serializer=ObserverSerializer(observer)
+
         if  not created:
             observer.name=validated_data['name']
             print("observer whit this email already exists")
-            return response.Response({'message':'observer whit this email already exists'})
+            return response.Response({'message':'observer whit this email already exists',"user":observer_serializer.data})
         else:
             print("observer was created successfully ")
         
@@ -34,4 +36,4 @@ def registre_obsever(request):
         print("user not valid")
         return response.Response({"message":"user not valid"},status=status.HTTP_400_BAD_REQUEST)
 
-    return response.Response({"message":"user created or updated succesfully"}, status=status.HTTP_200_OK)
+    return response.Response({"message":"user created or updated succesfully","user":observer_serializer.data}, status=status.HTTP_200_OK)
