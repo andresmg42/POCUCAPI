@@ -7,6 +7,7 @@ class Visit(models.Model):
     visit_date=models.DateField(auto_now=True)
     start_time=models.TimeField()
     end_time=models.TimeField()
+    complete=models.BooleanField(default=False)
 
     def __str__(self):
         return self.visit_number
