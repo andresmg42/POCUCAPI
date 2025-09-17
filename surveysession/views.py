@@ -14,7 +14,7 @@ def get_surveysession_by_id(request):
     id=request.GET.get('survey_id',None)
     email=request.GET.get('email',None)
 
-    if id is 'undefined' or email is 'undefined':
+    if id == 'undefined' or email == 'undefined':
         return response.Response({'message':'id or email invalid in get_surveysession_by_id'},status=status.HTTP_400_BAD_REQUEST)
 
     print('id:',id)

@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status,response
 from .models import Survey
 from .serializer import SurveySerializer
-from question.models import Question, Question_Survey
-from question.serializer import QuestionSerializer, QuestionSurveySerilizer
+from question.models import Question
+from question.serializer import QuestionSerializer
 from surveysession.models import Surveysession
 from option.models import Option
 from option.serailizer import OptionSerializer
@@ -42,13 +42,12 @@ def get_questions_and_options(request):
     try:
         sessionsurvey=Surveysession.objects.get(id=surveysession_id)
 
-        question_surveys=Question_Survey.objects.filter(survey=sessionsurvey.survey)
+        survey=sessionsurvey.survey
 
-        for q_s in question_surveys:
-            
-            # new_question=Question.objects.get(id=q_s.question_id)
-            questionserializer=QuestionSerializer(q_s.question)
-            options=Option.objects.filter(question=q_s.question)
+        for question in survey.questions.all():
+
+            questionserializer=QuestionSerializer(question)
+            options=Option.objects.filter(question=question)
             q={'question':questionserializer.data,'options':[]}
             for option in options:           
                 optionserializer=OptionSerializer(option)
