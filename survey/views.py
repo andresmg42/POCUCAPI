@@ -11,6 +11,7 @@ from option.models import Option
 from option.serailizer import OptionSerializer
 from category.models import Category
 from subcategory.models import Subcategory
+from question.serializer import QuestionSerializer2
 
 
 def index(request):
@@ -30,13 +31,67 @@ def list_surveys(request):
     except Exception as e:
         return response.Response({'message':'error in list_survey function','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# @api_view(['GET'])
+# def get_questions_and_options(request):
+
+#     surveysession_id=request.GET.get('surveysession_id')
+#     category_id=request.GET.get('category_id')
+
+#     resp=[]
+
+#     if surveysession_id  in [None, 'undefined'] and category_id in [None, 'undefined'] :
+#         return response.Response({'message': 'id invalid in get_questions_and_options'}, 
+#                         status=status.HTTP_400_BAD_REQUEST)
+    
+#     try:
+#         sessionsurvey=Surveysession.objects.get(id=surveysession_id)
+
+#         category= Category.objects.get(id=category_id)
+        
+#         subcategories=category.subcategory_set.all()
+#         survey=sessionsurvey.survey
+
+#         questions=Question.objects.filter(survey=survey,subcategory__in=subcategories)
+
+#         questions_list=QuestionSerializer(questions,many=True).data
+
+#         questions_map={}
+
+#         for question in questions_list:
+#             if question['parent_question']==None:
+#                 question['sub_questions']=[]
+            
+#             options=Option.objects.filter(question=question['id'])
+#             options=OptionSerializer(options,many=True)
+#             question['options']=options
+
+#             questions_map[question['id']]=question
+        
+#         nested_questions=[]
+
+#         for id,question in questions_map.items():
+#             if question['parent_question']:
+#                 parent=questions_map.get(question['parent_question'])
+#                 if parent:
+#                     parent['sub_questions'].append(question)
+#             else:
+#                 nested_questions.append(question)
+   
+            
+#         return response.Response(nested_questions, status=status.HTTP_200_OK)
+    
+#     except Surveysession.DoesNotExist:
+#         return response.Response({'error': 'Survey session not found'}, 
+#                         status=status.HTTP_404_NOT_FOUND)
+    
+#     except Exception as e:
+#         return response.Response({'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    
 @api_view(['GET'])
 def get_questions_and_options(request):
 
     surveysession_id=request.GET.get('surveysession_id')
     category_id=request.GET.get('category_id')
-
-    resp=[]
 
     if surveysession_id  in [None, 'undefined'] and category_id in [None, 'undefined'] :
         return response.Response({'message': 'id invalid in get_questions_and_options'}, 
@@ -47,30 +102,28 @@ def get_questions_and_options(request):
 
         category= Category.objects.get(id=category_id)
         
-        subcategories=category.subcategory_set.all()
-        survey=sessionsurvey.survey
+        all_questions= Question.objects.filter(
+            survey=sessionsurvey.survey,
+            subcategory__in=category.subcategory_set.all()
+        ).prefetch_related('options')
 
-        questions=Question.objects.filter(survey=survey,subcategory__in=subcategories)
 
-        for question in questions:
+        top_level_questions=[q for q in all_questions if q.parent_question is None]
+        
+        context={'all_questions': all_questions}
 
-            questionserializer=QuestionSerializer(question)
-            options=Option.objects.filter(question=question)
-            q={'question':questionserializer.data,'options':[]}
-            for option in options:           
-                optionserializer=OptionSerializer(option)
-                q['options'].append(optionserializer.data)
+        serializer=QuestionSerializer(top_level_questions,many=True,context=context)
             
-            resp.append(q)
-        return response.Response(resp, status=status.HTTP_200_OK)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
     
     except Surveysession.DoesNotExist:
         return response.Response({'error': 'Survey session not found'}, 
                         status=status.HTTP_404_NOT_FOUND)
     
+    except Category.DoesNotExist:
+        return response.Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+
     except Exception as e:
-        return response.Response({'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                    
-    
+        return response.Response({'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
 
 
