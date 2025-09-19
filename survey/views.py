@@ -9,6 +9,8 @@ from question.serializer import QuestionSerializer
 from surveysession.models import Surveysession
 from option.models import Option
 from option.serailizer import OptionSerializer
+from category.models import Category
+from subcategory.models import Subcategory
 
 
 def index(request):
@@ -32,19 +34,25 @@ def list_surveys(request):
 def get_questions_and_options(request):
 
     surveysession_id=request.GET.get('surveysession_id')
+    category_id=request.GET.get('category_id')
 
     resp=[]
 
-    if surveysession_id in [None, 'undefined']:
+    if surveysession_id  in [None, 'undefined'] and category_id in [None, 'undefined'] :
         return response.Response({'message': 'id invalid in get_questions_and_options'}, 
                         status=status.HTTP_400_BAD_REQUEST)
     
     try:
         sessionsurvey=Surveysession.objects.get(id=surveysession_id)
 
+        category= Category.objects.get(id=category_id)
+        
+        subcategories=category.subcategory_set.all()
         survey=sessionsurvey.survey
 
-        for question in survey.questions.all():
+        questions=Question.objects.filter(survey=survey,subcategory__in=subcategories)
+
+        for question in questions:
 
             questionserializer=QuestionSerializer(question)
             options=Option.objects.filter(question=question)
