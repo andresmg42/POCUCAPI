@@ -1,9 +1,15 @@
 from django.db import models
 from subcategory.models import Subcategory
 from survey.models import Survey
+from option.models import Option
 
 class Question(models.Model):
     subcategory=models.ForeignKey(Subcategory,on_delete=models.CASCADE)
+    options = models.ManyToManyField(
+        Option,
+        blank=True,
+        related_name="questions"
+    )
     code=models.CharField(max_length=3)
     question_type=models.CharField(max_length=20)
     description=models.TextField()
