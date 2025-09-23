@@ -11,4 +11,4 @@ class Response(models.Model):
     text_value=models.CharField(max_length=30,null=True)
 
     def __str__(self):
-        return self.numeric_value
+        return str(self.id)
