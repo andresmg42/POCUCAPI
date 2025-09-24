@@ -10,5 +10,8 @@ class Response(models.Model):
     numeric_value=models.IntegerField(null=True)
     text_value=models.CharField(max_length=30,null=True)
 
+    class Meta:
+        unique_together=[['option','visita','question']]
+
     def __str__(self):
-        return str(self.id)
+        return str(self.question.code)

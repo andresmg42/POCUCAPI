@@ -13,34 +13,36 @@ def create_response(request):
 
     print(data)
     responses=[]
+    raw_responses=[]
 
     try:
 
-        for question in data.keys():
-            new_res={'question':question,
-                    'option':data[question]['optionId'],
-                    'visita':data[question]['visitId'],
-                    'numeric_value':int(data[question]['numeric_value']) if data[question]['numeric_value'] is not None else None,
-                    'text_value':data[question]['textValue']
+        for question_id,answer in data.items():
+            new_res={'question':question_id,
+                    'option':answer.get('optionId'),
+                    'visita':answer.get('visitId'),
+                    'numeric_value':answer.get('numeric_value'),
+                    'text_value':answer.get('textValue')
                     }
+            raw_responses.append(new_res)
             
-            serializer=ResponseSerializer(data=new_res)
+        serializer=ResponseSerializer(data=raw_responses,many=True)
 
-            if serializer.is_valid():
+        if serializer.is_valid():
                 
-                validated_data=serializer.validated_data
+            validated_data=serializer.validated_data
 
-                obj,created=Response.objects.get_or_create(**validated_data)
+            objects_to_create=[Response(**data) for data in validated_data]
 
-                if created:
-                    new_serializer=ResponseSerializer(obj)
-                    responses.append(new_serializer.data)
-                    
-                else:
-                    return response.Response({'message':'this response already exists'},status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        return response.Response({'message':'new responses created successfully','response':responses},status=status.HTTP_200_OK)
-        
+            Response.objects.bulk_create(objects_to_create,ignore_conflicts=True)
+
+
+            return response.Response({'message':'Response created successfully'},status=status.HTTP_201_CREATED)
+                
+        else:
+            return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    except (ValueError, TypeError) as e:
+        return response.Response({'message': 'Invalid numeric value provided.', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)   
+    
     except Exception as e:
         return response.Response({'message':'error in crate response','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
