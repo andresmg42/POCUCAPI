@@ -11,7 +11,7 @@ class Surveysession(models.Model):
     url=models.CharField(max_length=100)
     number_session=models.CharField(max_length=20)
     start_date=models.DateField("start_date")
-    end_date=models.DateTimeField("end_date")
+    end_date=models.DateField("end_date")
     observational_distance=models.CharField(max_length=20)
 
     def __str__(self):
