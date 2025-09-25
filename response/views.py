@@ -41,6 +41,7 @@ def create_response(request):
                 
             validated_data=serializer.validated_data
 
+
             objects_to_create=[Response(**data) for data in validated_data]
 
             Response.objects.bulk_create(objects_to_create,ignore_conflicts=True)
@@ -50,7 +51,7 @@ def create_response(request):
 
                Visit.objects.filter(id=visit_id).update(complete=True)
 
-            return response.Response({'message':'Response created successfully'},status=status.HTTP_201_CREATED)
+            return response.Response({'message':'Responses created successfully'},status=status.HTTP_201_CREATED)
                 
         else:
             return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

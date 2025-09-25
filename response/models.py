@@ -7,11 +7,17 @@ class Response(models.Model):
     option=models.ForeignKey(Option,on_delete=models.CASCADE,null=True)
     visita=models.ForeignKey(Visit,on_delete=models.CASCADE)
     question=models.ForeignKey(Question,on_delete=models.CASCADE)
-    numeric_value=models.IntegerField(null=True)
-    text_value=models.CharField(max_length=30,null=True)
+    numeric_value=models.IntegerField(null=True,blank=True)
+    text_value=models.CharField(max_length=30,null=True,blank=True)
 
     class Meta:
-        unique_together=[['option','visita','question']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['visita','question'], 
+                name='unique_response_by_visita_question_and_option'
+            )
+        ]
+        
 
     def __str__(self):
-        return str(self.question.code)
+        return f'survey:{self.visita.surveysession.survey.name}-session:{self.visita.surveysession.number_session}-visita:{self.visita.visit_number}-question:{self.question.__str__()}'

@@ -14,5 +14,13 @@ class Surveysession(models.Model):
     end_date=models.DateField("end_date")
     observational_distance=models.CharField(max_length=20)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['survey','number_session'], 
+                name='unique_number_session_by_survey'
+            )
+        ]
+
     def __str__(self):
-        return self.number_session
+        return f'{self.survey.name}-session-{self.number_session}'

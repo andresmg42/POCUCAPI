@@ -17,7 +17,7 @@ class Question(models.Model):
     survey=models.ManyToManyField(Survey,related_name='questions')
 
     def __str__(self):
-        return self.code
+        return f'{self.subcategory.category.name}-{self.subcategory.name}-{self.code}'
     
 
 
