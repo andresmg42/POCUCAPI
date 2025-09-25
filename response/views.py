@@ -6,6 +6,7 @@ from .models import Response
 from surveysession.models import Surveysession
 from survey.models import Survey
 from visit.models import Visit
+from question.models import Question
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -46,8 +47,7 @@ def create_response(request):
 
             Response.objects.bulk_create(objects_to_create,ignore_conflicts=True)
 
-
-            if validate_visit_is_completed(validated_data,visit_id):
+            if validate_visit_is_completed(validated_data,visit_id) :
 
                Visit.objects.filter(id=visit_id).update(complete=True)
 
@@ -60,23 +60,37 @@ def create_response(request):
     
     except Exception as e:
         return response.Response({'message':'error in crate response','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
+
 def validate_visit_is_completed(data,visit_id):
 
     if not data:
         return False
     
-    answered_questions_ids={response['question'] for response in data}
-
     try:
         visit=Visit.objects.select_related('surveysession__survey').get(id=visit_id)
+
+        required_questions_ids=set(visit.surveysession.survey.questions.exclude(question_type='matrix_parent').values_list('id',flat=True))
+
     
     except Visit.DoesNotExist:
         return False
-
-    required_questions_ids=set(visit.surveysession.survey.questions.values_list('id',flat=True))
     
-    return required_questions_ids.issubset(answered_questions_ids)
+    
+    answered_questions_ids={response['question'].id for response in data}
+
+    
+    questions_already_answered_ids=set(Response.objects.filter(visita=visit_id).values_list('question_id',flat=True))
+
+    
+    all_answered_questions=answered_questions_ids.union(questions_already_answered_ids)
+
+    
+    res= required_questions_ids.issubset(all_answered_questions)
+
+    
+    return res
 
    
 
