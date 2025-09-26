@@ -94,4 +94,27 @@ def validate_visit_is_completed(data,visit_id):
 
    
 
+@api_view(['DELETE'])
+def delete_responses_by_category(request):
+
+    visit_id=request.query_params.get('visit_id')
+    category_id=request.query_params.get('category_id')
+
+    if visit_id in ['undefined',None] or category_id in ['undefined',None]:
+        return response.Response({'message':'visit_id or category_id empty'},status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+
+        delete_count,_=Response.objects.filter(question__subcategory__category_id=category_id,visita=visit_id).delete()
+        
+        if delete_count>0:
+            return response.Response({'message':f'{delete_count} response deleted'},status=status.HTTP_200_OK)
+    
+        else:
+            return response.Response({'message':'there is not responses to delete'},status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return response.Response({'message':'error in delete_questions_by_category','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
