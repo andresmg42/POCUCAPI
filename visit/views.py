@@ -17,7 +17,7 @@ def get_visits_by_id_session(request):
     print('id surveysession: ',id_surveysession)
     
 
-    if id_surveysession is 'undefined':
+    if id_surveysession in  ['undefined',None]:
         return response.Response({'message':'id invalid in get_visits_by_id_session'},status=status.HTTP_400_BAD_REQUEST)
 
     surveysession=Surveysession.objects.get(id=id_surveysession)
@@ -59,6 +59,16 @@ def create_visit(request):
     except Exception as e:
 
         return response.Response({'message':'error in create visit','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['DELETE'])
+def delete_visit(request,pk):
+    try:
+        visit_obj=Visit.objects.get(id=pk)
+    except Visit.DoesNotExist:
+        return response.Response({'message':'the visit object do not exist'},status=status.HTTP_404_NOT_FOUND)  
+    visit_obj.delete()
+   
+    return response.Response({'message':f'visit {pk} deleted'},status=status.HTTP_204_NO_CONTENT)
 
 
 

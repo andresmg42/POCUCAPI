@@ -68,8 +68,15 @@ def create_survey_session(request):
         return response.Response({'message':"error in create survey session",'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
    
-
-    
+@api_view(['DELETE'])
+def delete_survey_session(request,pk):
+    try:
+        surveysession_obj=Surveysession.objects.get(id=pk)
+    except Surveysession.DoesNotExist:
+        return response.Response({'message':'the visit object do not exist'},status=status.HTTP_404_NOT_FOUND)  
+    surveysession_obj.delete()
+   
+    return response.Response({'message':f'visit {pk} deleted'},status=status.HTTP_204_NO_CONTENT)
 
 
 
