@@ -108,6 +108,9 @@ def delete_responses_by_category(request):
         delete_count,_=Response.objects.filter(question__subcategory__category_id=category_id,visita=visit_id).delete()
         
         if delete_count>0:
+            visit=Visit.objects.get(id=visit_id)
+            visit.complete=False
+            visit.save()
             return response.Response({'message':f'{delete_count} response deleted'},status=status.HTTP_200_OK)
     
         else:
