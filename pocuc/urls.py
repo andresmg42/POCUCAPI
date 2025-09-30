@@ -18,10 +18,10 @@ from django.contrib import admin
 from django.urls import path,include
 from surveysession.views import SurveysessionViewSet # Import view from the app
 from rest_framework.routers import DefaultRouter
-
+from visit.views import VisitViewSet
 router = DefaultRouter()
 router.register(r'surveysession', SurveysessionViewSet, basename='surveysession')
-
+router.register(r'visit',VisitViewSet,basename='visit')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("category/", include("category.urls")),

@@ -1,11 +1,11 @@
-from django.urls import path
-
+from django.urls import path,include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-urlpatterns = [
-    path("", views.index, name="index"),
-    path("sessionvisits/", views.get_visits_by_id_session, name="get_visits_by_id_session"),
-    path("create/", views.create_visit, name="create_visit"),
-    path("delete/<int:pk>",views.delete_visit , name="delete_visit"),
+router=DefaultRouter()
+router.register(r'',views.VisitViewSet,basename='visit')
 
+urlpatterns = [
+    path("sessionvisits/", views.get_visits_by_id_session, name="get_visits_by_id_session"),
+    path('',include(router.urls))
 ]

@@ -10,6 +10,4 @@ router.register(r'', views.SurveysessionViewSet, basename='surveysession')
 urlpatterns = [
     path('get_survey_session_by_survey_id', views.get_surveysession_by_survey_id,name='get_surveysession_by_id'),
     path('', include(router.urls)),
-    
-
 ]
