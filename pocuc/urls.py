@@ -16,6 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from surveysession.views import SurveysessionViewSet # Import view from the app
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'surveysession', SurveysessionViewSet, basename='surveysession')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,8 +31,9 @@ urlpatterns = [
     path("response/", include("response.urls")),
     path("subcategory/", include("subcategory.urls")),
     path("survey/", include("survey.urls")),
-    path("surveysession/", include("surveysession.urls")),
+    # path("surveysession/", include("surveysession.urls")),
     path("visit/", include("visit.urls")),
     path("zone/", include("zone.urls")),
+    path('surveysession/', include('surveysession.urls')), 
     
 ]
