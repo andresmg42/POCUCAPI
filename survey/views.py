@@ -14,8 +14,6 @@ from subcategory.models import Subcategory
 from question.serializer import QuestionSerializer2
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
 
 @api_view(['GET'])
 def list_surveys(request):
