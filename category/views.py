@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from category.models import Category
-from rest_framework import status,request,response
+from rest_framework import status,request,response,viewsets
 from surveysession.models import Surveysession
 from question.models import Question
 from subcategory.models import Subcategory
@@ -9,6 +9,17 @@ from question.serializer import QuestionSerializer
 from surveysession.models import Surveysession
 from survey.models import Survey
 from response.models import Response
+from visit.models import Visit
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for viewing and editing survey sessions.
+    This provides `list`, `create`, `retrieve`, `update`,
+    and `destroy` actions automatically.
+    """
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
 
 
 
@@ -50,11 +61,12 @@ def questions_of_category_completed(request):
         )
 
     try:
-
-        num_original_questions_by_category=Question.objects.filter(subcategory__category__id=category_id).exclude(question_type='matrix_parent').count()
-
+        visit=Visit.objects.get(id=visit_id)
+        survey=visit.surveysession.survey
+        num_original_questions_by_category=Question.objects.filter(subcategory__category__id=category_id,survey=survey).exclude(question_type='matrix_parent').count()
+        print('original_q',num_original_questions_by_category)
         num_responses_related_category_id=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id).count()
-
+        print('num_resp',num_responses_related_category_id)
         
         result=(num_original_questions_by_category > 0 and   num_original_questions_by_category==num_responses_related_category_id)
 
