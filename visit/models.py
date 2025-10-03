@@ -5,8 +5,9 @@ class Visit(models.Model):
     surveysession=models.ForeignKey(Surveysession,on_delete=models.CASCADE)
     visit_number=models.IntegerField()
     visit_date=models.DateField()
+    visit_end_date=models.DateField(null=True,blank=True)
     start_time=models.TimeField()
-    end_time=models.TimeField()
+    end_time=models.TimeField(null=True,blank=True)
     complete=models.BooleanField(default=False)
 
     class Meta:

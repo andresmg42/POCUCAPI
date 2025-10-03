@@ -7,24 +7,27 @@ from surveysession.models import Surveysession
 from survey.models import Survey
 from visit.models import Visit
 from question.models import Question
+from datetime import datetime
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 @api_view(['POST'])
 def create_response(request):
-    data=request.data
+    response_data=request.data['data']
 
-    print(data)
+    timestamp=request.data['timestamp']
+
+    print(response_data)
     responses=[]
     raw_responses=[]
 
     try:
 
-        if not data:
+        if not response_data:
             return response.Response({'message':'requested body can not be empty'},status=status.HTTP_400_BAD_REQUEST)
 
-        for question_id,answer in data.items():
+        for question_id,answer in response_data.items():
             new_res={'question':question_id,
                     'option':answer.get('optionId'),
                     'visita':answer.get('visitId'),
@@ -48,8 +51,16 @@ def create_response(request):
             Response.objects.bulk_create(objects_to_create,ignore_conflicts=True)
 
             if validate_visit_is_completed(validated_data,visit_id) :
+               
+               if timestamp.endswith('Z'):
+                   timestamp=timestamp[:-1]+"+00:00"
+                
+               parsed_timestamp=datetime.fromisoformat(timestamp)
 
-               Visit.objects.filter(id=visit_id).update(complete=True)
+               end_date_obj=parsed_timestamp.date()
+               end_time_obj=parsed_timestamp.time()
+
+               Visit.objects.filter(id=visit_id).update(complete=True,visit_end_date=end_date_obj,end_time=end_time_obj)
 
             return response.Response({'message':'Responses created successfully'},status=status.HTTP_201_CREATED)
                 
