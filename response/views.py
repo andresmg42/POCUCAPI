@@ -8,15 +8,16 @@ from survey.models import Survey
 from visit.models import Visit
 from question.models import Question
 from datetime import datetime
+from django.utils import timezone
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 @api_view(['POST'])
 def create_response(request):
-    response_data=request.data['data']
+    response_data=request.data
 
-    timestamp=request.data['timestamp']
+    # timestamp=request.data['timestamp']
 
     print(response_data)
     responses=[]
@@ -52,15 +53,15 @@ def create_response(request):
 
             if validate_visit_is_completed(validated_data,visit_id) :
                
-               if timestamp.endswith('Z'):
-                   timestamp=timestamp[:-1]+"+00:00"
+            #    if timestamp.endswith('Z'):
+            #        timestamp=timestamp[:-1]+"+00:00"
                 
-               parsed_timestamp=datetime.fromisoformat(timestamp)
+            #    parsed_timestamp=datetime.fromisoformat(timestamp)
 
-               end_date_obj=parsed_timestamp.date()
-               end_time_obj=parsed_timestamp.time()
+            #    end_date_obj=parsed_timestamp.date()
+            #    end_time_obj=parsed_timestamp.time()
 
-               Visit.objects.filter(id=visit_id).update(complete=True,visit_end_date=end_date_obj,end_time=end_time_obj)
+               Visit.objects.filter(id=visit_id).update(state=2,visit_end_date_time=timezone.now())
 
             return response.Response({'message':'Responses created successfully'},status=status.HTTP_201_CREATED)
                 
@@ -120,7 +121,7 @@ def delete_responses_by_category(request):
         
         if delete_count>0:
             visit=Visit.objects.get(id=visit_id)
-            visit.complete=False
+            visit.state=1
             visit.save()
             return response.Response({'message':f'{delete_count} response deleted'},status=status.HTTP_200_OK)
     
