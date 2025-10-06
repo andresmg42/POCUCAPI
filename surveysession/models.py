@@ -13,6 +13,8 @@ class Surveysession(models.Model):
     start_date=models.DateField("start_date")
     end_date=models.DateField("end_date")
     observational_distance=models.CharField(max_length=20)
+    visit_number=models.IntegerField(null=False,default=6)
+    state=models.IntegerField(default=0)
 
     class Meta:
         constraints = [
