@@ -53,14 +53,6 @@ def create_response(request):
 
             if validate_visit_is_completed(validated_data,visit_id) :
                
-            #    if timestamp.endswith('Z'):
-            #        timestamp=timestamp[:-1]+"+00:00"
-                
-            #    parsed_timestamp=datetime.fromisoformat(timestamp)
-
-            #    end_date_obj=parsed_timestamp.date()
-            #    end_time_obj=parsed_timestamp.time()
-
                Visit.objects.filter(id=visit_id).update(state=2,visit_end_date_time=timezone.now())
 
             return response.Response({'message':'Responses created successfully'},status=status.HTTP_201_CREATED)
@@ -121,12 +113,16 @@ def delete_responses_by_category(request):
         
         if delete_count>0:
             visit=Visit.objects.get(id=visit_id)
+            visit.visit_end_date_time=None
             visit.state=1
             visit.save()
             return response.Response({'message':f'{delete_count} response deleted'},status=status.HTTP_200_OK)
     
         else:
             return response.Response({'message':'there is not responses to delete'},status=status.HTTP_404_NOT_FOUND)
+    except Visit.DoesNotExist:
+        return response.Response({'message':'visit not found'},status=status.HTTP_404_NOT_FOUND)
+
     except Exception as e:
         return response.Response({'message':'error in delete_questions_by_category','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
