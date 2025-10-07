@@ -9,6 +9,6 @@ router.register(r'', views.SurveysessionViewSet, basename='surveysession')
 # The app's URL patterns
 urlpatterns = [
     path('get_survey_session_by_survey_id', views.get_surveysession_by_survey_id,name='get_surveysession_by_id'),
-    path('update_start_session', views.update_start_session,name='update_start_session'),
+    path('update_start_session/', views.update_start_session,name='update_start_session'),
     path('', include(router.urls)),
 ]
