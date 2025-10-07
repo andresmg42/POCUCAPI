@@ -46,6 +46,8 @@ def create_response(request):
                 
             validated_data=serializer.validated_data
 
+            updated_session=False
+
 
             objects_to_create=[Response(**data) for data in validated_data]
 
@@ -55,7 +57,9 @@ def create_response(request):
                
                Visit.objects.filter(id=visit_id).update(state=2,visit_end_date_time=timezone.now())
 
-            return response.Response({'message':'Responses created successfully'},status=status.HTTP_201_CREATED)
+               updated_session=validate_and_update_surveysession_state(visit_id)
+
+            return response.Response({'message':'Responses created successfully','session_completed':updated_session},status=status.HTTP_201_CREATED)
                 
         else:
             return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -96,8 +100,34 @@ def validate_visit_is_completed(data,visit_id):
     
     return res
 
-   
 
+def validate_and_update_surveysession_state(visit_id): 
+      try:
+
+        session=Surveysession.objects.get(visits__id=visit_id)
+
+        print('session_id',session.number_session)
+     
+        completed_visits=session.visits.filter(state=2)
+
+        if session.visit_number==completed_visits.count():
+                session.state=2
+                session.end_date=timezone.now()
+                session.save()
+                print(f"Session {session.id} updated successfully.")
+                return True 
+        else: return False
+      
+      except Surveysession.DoesNotExist:
+        print(f"Error: No Surveysession found for visit_id {visit_id}")
+        return False
+      except Exception as e:
+          print(f'error:',str(e))
+          return False
+      
+          
+
+        
 @api_view(['DELETE'])
 def delete_responses_by_category(request):
 

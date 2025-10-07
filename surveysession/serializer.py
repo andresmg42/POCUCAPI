@@ -23,6 +23,6 @@ class SurveysessionSerializer(serializers.ModelSerializer):
         model = Surveysession
         fields = [
             'id', 'zone', 'observer', 'survey', 'number_session', 
-            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at'
+            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number'
         ]
         read_only_fields = ['uploaded_at']

@@ -2,7 +2,7 @@ from django.db import models
 from surveysession.models import Surveysession
 
 class Visit(models.Model):
-    surveysession=models.ForeignKey(Surveysession,on_delete=models.CASCADE)
+    surveysession=models.ForeignKey(Surveysession,on_delete=models.CASCADE,related_name='visits')
     visit_number=models.IntegerField()
     visit_start_date_time=models.DateTimeField(null=True,blank=True)
     visit_end_date_time=models.DateTimeField(null=True,blank=True)

@@ -7,6 +7,7 @@ from observer.models import Observer
 from survey.models import Survey
 from zone.models import Zone
 from observer.models import Observer
+from django.utils import timezone
 
 
 @api_view(['GET'])
@@ -33,95 +34,36 @@ def get_surveysession_by_survey_id(request):
 
     return response.Response(serializer.data,status=status.HTTP_200_OK)
 
-# @api_view(['POST'])
-# def create_survey_session(request):
 
-#     data=request.data
+@api_view(['POST'])
+def update_start_session(request):
 
-#     print(data)
-#     if not all(value!='' for value in data.values()):
-#         return response.Response({'message':'some data value is empty'},status=status.HTTP_400_BAD_REQUEST)
-#     try:
+    data=request.data
 
-#         zone= Zone.objects.get(number=data['zone'])
-#         observer=Observer.objects.get(email=data['email'])
-#         survey=Survey.objects.get(id=data['survey_id'])
+    session_id=data['session_id']
 
-#         data['survey']=survey.id
-#         data['zone']=zone.id
-#         data['observer']=observer.id
-        
-        
-#         print('data from fronted:',data)
-#         serializer=SurveysessionSerializer(data=data)
+    if not session_id:
+        return response.Response({'message': 'session_id is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-#         if serializer.is_valid():
+    try:
 
-#             validated_data=serializer.validated_data
+        session=Surveysession.objects.get(id=session_id)
 
-#             obj,created=Surveysession.objects.update_or_create(id=validated_data.session_id,default=validated_data)
-
-#             if created:
-#                 serializernew=SurveysessionSerializer(obj)
-#                 return response.Response({'message':'new session created successfully','session':serializernew.data})
-#             else:
-#                 return response.Response({'message':'update surveysession succesfully'},status=status.HTTP_200_OK)
-#         else:
-#             return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        if session.state==0:
+            session.state=1
+            session.start_date=timezone.now()
+            session.save()
 
 
-#     except Exception as e:
-#         return response.Response({'message':"error in create survey session",'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Surveysession.DoesNotExist:
+        return response.Response({'message':'surveysession object does not exists'},status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return response.Response({'messge':'an unexpected error occurred in update_start_date'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# @api_view(['POST'])
-# def create_survey_session(request):
-
-#     data=request.data
-
-#     print(data)
-#     if not all(value!='' for value in data.values()):
-#         return response.Response({'message':'some data value is empty'},status=status.HTTP_400_BAD_REQUEST)
-#     try:
-
-#         zone= Zone.objects.get(number=data['zone'])
-#         observer=Observer.objects.get(email=data['email'])
-#         survey=Survey.objects.get(id=data['survey_id'])
-
-#         data['survey']=survey.id
-#         data['zone']=zone.id
-#         data['observer']=observer.id
-        
-#         print('data from fronted:',data)
-#         serializer=SurveysessionSerializer(data=data)
-
-#         if serializer.is_valid():
-
-#             validated_data=serializer.validated_data
-
-#             if 
-
-#             if created:
-#                 serializernew=SurveysessionSerializer(obj)
-#                 return response.Response({'message':'new session created successfully','session':serializernew.data})
-#             else:
-#                 return response.Response({'message':'update surveysession succesfully'},status=status.HTTP_200_OK)
-#         else:
-#             return response.Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    return response.Response({'message':'session_start_date_time and state updated successfully'},status=status.HTTP_200_OK)
 
 
-#     except Exception as e:
-#         return response.Response({'message':"error in create survey session",'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-   
-# @api_view(['DELETE'])
-# def delete_survey_session(request,pk):
-#     try:
-#         surveysession_obj=Surveysession.objects.get(id=pk)
-#     except Surveysession.DoesNotExist:
-#         return response.Response({'message':'the visit object do not exist'},status=status.HTTP_404_NOT_FOUND)  
-#     surveysession_obj.delete()
-   
-#     return response.Response({'message':f'visit {pk} deleted'},status=status.HTTP_204_NO_CONTENT)
+
 
 
 class SurveysessionViewSet(viewsets.ModelViewSet):
