@@ -66,3 +66,5 @@ class VisitViewSet(viewsets.ModelViewSet):
     queryset = Visit.objects.all().order_by('visit_number')
     serializer_class = VisitSerializer
 
+    
+

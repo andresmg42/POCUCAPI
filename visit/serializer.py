@@ -5,3 +5,5 @@ class VisitSerializer(serializers.ModelSerializer):
     class Meta:
         model=Visit
         fields='__all__'
+    
+        
