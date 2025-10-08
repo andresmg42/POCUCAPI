@@ -115,8 +115,13 @@ def validate_and_update_surveysession_state(visit_id):
                 session.end_date=timezone.now()
                 session.save()
                 print(f"Session {session.id} updated successfully.")
-                return True 
-        else: return False
+                return True
+        
+        else: 
+            session.state=1
+            session.end_date=None
+            session.save()
+            return False
       
       except Surveysession.DoesNotExist:
         print(f"Error: No Surveysession found for visit_id {visit_id}")
@@ -146,6 +151,7 @@ def delete_responses_by_category(request):
             visit.visit_end_date_time=None
             visit.state=1
             visit.save()
+            validate_and_update_surveysession_state(visit_id)
             return response.Response({'message':f'{delete_count} response deleted'},status=status.HTTP_200_OK)
     
         else:
