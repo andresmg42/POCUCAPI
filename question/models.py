@@ -16,8 +16,10 @@ class Question(models.Model):
     parent_question=models.ForeignKey('self', on_delete=models.CASCADE,null=True,blank=True)
     survey=models.ManyToManyField(Survey,related_name='questions')
 
+    
     def __str__(self):
-        return f'{self.subcategory.category.name}-{self.subcategory.name}-{self.code}'
+        surveys=",".join([s.name for s in self.survey.all()])
+        return f'{surveys}-{self.subcategory.category.name}-{self.subcategory.name}-{self.code}'
     
 
 
