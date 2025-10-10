@@ -44,12 +44,18 @@ def registre_obsever(request):
 @api_view(['GET'])
 def get_table_observer_info(request):
 
+    survey_id=request.GET.get('survey_id')
+
+    if not survey_id:
+
+        return response.Response({'message':'the survey_id is undefined'},status=status.HTTP_400_BAD_REQUEST)
+
     try:
 
         observers=Observer.objects.annotate(
-            total_sessions=Count('surveysessions'),
-            completed_sessions=Count('surveysessions',filter=Q(surveysessions__state=2))
-        ).order_by('-register_date')
+            total_sessions=Count('surveysessions',filter=Q(surveysessions__survey_id=survey_id)),
+            completed_sessions=Count('surveysessions',filter=Q(surveysessions__state=2, surveysessions__survey_id=survey_id))
+        ).filter(total_sessions__gt=0).order_by('-register_date')
 
         serializer= ObserverTableSerializer(observers,many=True)
 

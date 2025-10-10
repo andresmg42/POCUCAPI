@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Surveysession
 from .models import Surveysession, Zone, Observer, Survey
 from django.utils import timezone
+from visit.models import Visit
+
 
 
 class SurveysessionSerializer(serializers.ModelSerializer):
@@ -47,9 +49,55 @@ class SurveysessionSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SessionReportSerializer(serializers.ModelSerializer):
+    survey=serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
+    visits_rate= serializers.SerializerMethodField()
 
+    class Meta:
+        model=Surveysession
+        fields=['id','zone','observer','survey','uploaded_at','url','number_session','start_date','end_date','observational_distance','visits_rate','state']
+
+    def get_visits_rate(self,obj):
+
+        try:
+            observer_completed_visits=Visit.objects.filter(
+                surveysession=obj,
+                state=2
+            ).count()
+
+            total_session_visits=Visit.objects.filter(surveysession=obj).count()
+
+            if total_session_visits==0:
+                return 0.0
+            
+            rate=f'{observer_completed_visits}/{total_session_visits}'
+            return rate
+        
+        except Exception as e:
+
+            return f'Error calculating rate:{e}'
+        
+
+
+        
+        
 
     
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+        
     # def get_state(self,obj):
 
     #     completed_visits_count=obj.visits.filter(state=2).count()

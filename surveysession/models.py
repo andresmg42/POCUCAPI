@@ -7,7 +7,7 @@ class Surveysession(models.Model):
     zone=models.ForeignKey(Zone,on_delete=models.CASCADE)
     observer=models.ForeignKey(Observer,on_delete=models.CASCADE,related_name='surveysessions')
     survey=models.ForeignKey(Survey,on_delete=models.CASCADE)
-    uploaded_at=models.DateField("uploaded_at",auto_now=True)
+    uploaded_at=models.DateField("uploaded_at",auto_now_add=True)
     url=models.CharField(max_length=100)
     number_session=models.CharField(max_length=20)
     start_date=models.DateTimeField(null=True,blank=True)
@@ -19,8 +19,8 @@ class Surveysession(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['survey','number_session'], 
-                name='unique_number_session_by_survey'
+                fields=['survey','number_session','observer'], 
+                name='unique_number_session_by_survey_by_observer'
             )
         ]
 

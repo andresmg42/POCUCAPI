@@ -8,6 +8,7 @@ from survey.models import Survey
 from zone.models import Zone
 from observer.models import Observer
 from django.utils import timezone
+from .serializer import SessionReportSerializer
 
 
 @api_view(['GET'])
@@ -89,6 +90,36 @@ def update_start_session(request):
 #         return response.Response({'messge':'an unexpected error occurred in update_start_date'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 #     return response.Response({'message':'start_date and state updated successfully in surveysession'},status=status.HTTP_200_OK)
+
+
+
+
+@api_view(['GET'])
+def get_table_session_info(request):
+
+    observer_id=request.GET.get('observer_id')
+    survey_id=request.GET.get('survey_id')
+
+    if not observer_id or not survey_id:
+        return response.Respone({'error':"the id observer query parameter is required."})
+
+    queryset= Surveysession.objects.filter(observer_id=observer_id,survey_id=survey_id)
+
+    serializer_context={
+        'request':request,
+        
+        
+    }
+
+    serializer=SessionReportSerializer(
+        queryset,
+        many=True,
+        context=serializer_context
+    )
+
+    return response.Response(serializer.data)
+
+
 
 
 class SurveysessionViewSet(viewsets.ModelViewSet):
