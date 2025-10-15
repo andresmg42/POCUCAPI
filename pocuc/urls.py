@@ -37,5 +37,6 @@ urlpatterns = [
     path("visit/", include("visit.urls")),
     path("zone/", include("zone.urls")),
     path('surveysession/', include('surveysession.urls')), 
+    path('pocucstats/', include('pocucstats.urls')), 
     
 ]

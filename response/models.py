@@ -4,7 +4,7 @@ from visit.models import Visit
 from question.models import Question
 
 class Response(models.Model):
-    option=models.ForeignKey(Option,on_delete=models.CASCADE,null=True)
+    option=models.ForeignKey(Option,on_delete=models.CASCADE,null=True,related_name='response')
     visita=models.ForeignKey(Visit,on_delete=models.CASCADE)
     question=models.ForeignKey(Question,on_delete=models.CASCADE)
     numeric_value=models.IntegerField(null=True,blank=True)

@@ -13,7 +13,7 @@ class Question(models.Model):
     code=models.CharField(max_length=3)
     question_type=models.CharField(max_length=20)
     description=models.TextField()
-    parent_question=models.ForeignKey('self', on_delete=models.CASCADE,null=True,blank=True)
+    parent_question=models.ForeignKey('self', on_delete=models.CASCADE,null=True,blank=True,related_name='child_questions')
     survey=models.ManyToManyField(Survey,related_name='questions')
 
     

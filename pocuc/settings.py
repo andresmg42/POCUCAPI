@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'subcategory.apps.SubcategoryConfig',
     'question.apps.QuestionConfig',
     'option.apps.OptionConfig',
-    'response.apps.ResponseConfig'
+    'response.apps.ResponseConfig',
+    'pocucstats.apps.PocucstatsConfig'
 ]
 
 MIDDLEWARE = [
