@@ -28,7 +28,7 @@ class SurveyDashboardView(APIView):
                 
         return response.Response(dashboard_layout)
 
-    def get_visual_data_for_question(self, question):
+    def get_visual_data_for_question(self, question:Question):
         """Dispatcher function to generate data based on question type."""
         
         # For multiple choice questions (bar chart)
@@ -39,8 +39,10 @@ class SurveyDashboardView(APIView):
             ).values('description', 'response_count')
             
             return {
+                'id':question.id,
+                'description':question.description,
                 'question_code': question.code,
-                'question_text': question.description,
+                # 'question_text': question.description,
                 'visualization_type': 'bar_chart',
                 'data': list(data) # e.g., [{'description': 'Yes', 'response_count': 50}, ...]
             }
@@ -56,9 +58,11 @@ class SurveyDashboardView(APIView):
 
             for child in child_questions:
                  
-                child_data = {'name': child.description,'options':{}}
+                child_data = {'name':child.description}
                 for desc in option_descriptions:
-                 child_data['options'][desc]=0
+                 child_data[desc]=0
+
+                # print('child',child)
 
                 response_counts=Response.objects.filter(question=child).values(
                     'option__description'
@@ -67,14 +71,15 @@ class SurveyDashboardView(APIView):
                 )
 
                 for item in response_counts:
-                    child_data['options'][item['option__description']]=item['count']
+                    child_data[item['option__description']]=item['count']
 
                 final_data.append(child_data)
 
             return {
-
-                'question_parent_text':question.description,
-                'question_parent_code':question.code,
+                'id':question.id,
+                'description':question.description,
+                # 'question_parent_text':question.description,
+                'question_code':question.code,
                 'visualization_type':'stacked_bar_100_percent',
                 'data':final_data
                 
