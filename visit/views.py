@@ -7,8 +7,6 @@ from surveysession.models import Surveysession
 from django.utils import  timezone
 from response.models import Response
 
-
-
 @api_view(['GET'])
 def get_visits_by_id_session(request):
 

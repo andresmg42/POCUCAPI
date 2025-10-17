@@ -3,6 +3,12 @@ from .models import Question
 from option.models import Option
 from option.serailizer import OptionSerializer
 
+
+class QuestionSerializerSimple(serializers.ModelSerializer):
+    class Meta:
+        model=Question
+        fields='__all__'
+
 class QuestionSerializer(serializers.ModelSerializer):
     options=OptionSerializer(many=True,read_only=True)
 

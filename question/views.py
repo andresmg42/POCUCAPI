@@ -1,5 +1,14 @@
 from django.http import HttpResponse
+from rest_framework import viewsets
+from .models import Question
+from .serializer import QuestionSerializerSimple
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+class QuestionViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for viewing and editing survey sessions.
+    This provides `list`, `create`, `retrieve`, `update`,
+    and `destroy` actions automatically.
+    """
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializerSimple
