@@ -1,5 +1,10 @@
-from django.http import HttpResponse
+from rest_framework import viewsets
+from .models import Zone
+from .serializer import ZoneSerializer
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+class ZoneViewSet(viewsets.ModelViewSet):
+   
+    queryset = Zone.objects.all()
+    serializer_class = ZoneSerializer
+

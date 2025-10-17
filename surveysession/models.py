@@ -6,7 +6,7 @@ from survey.models import Survey
 class Surveysession(models.Model):
     zone=models.ForeignKey(Zone,on_delete=models.CASCADE)
     observer=models.ForeignKey(Observer,on_delete=models.CASCADE,related_name='surveysessions')
-    survey=models.ForeignKey(Survey,on_delete=models.CASCADE)
+    survey=models.ForeignKey(Survey,on_delete=models.CASCADE,related_name='sessions')
     uploaded_at=models.DateField("uploaded_at",auto_now_add=True)
     url=models.CharField(max_length=100)
     number_session=models.CharField(max_length=20)

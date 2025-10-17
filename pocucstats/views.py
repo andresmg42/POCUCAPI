@@ -3,7 +3,7 @@ from django.shortcuts import render
 # In your app's views.py
 from django.db.models import Count, Avg, Min, Max
 from rest_framework.views import APIView
-from rest_framework import response
+from rest_framework import response,status
 
 from question.models import Question
 from response.models import Response
@@ -17,8 +17,15 @@ class SurveyDashboardView(APIView):
     def get(self, request, format=None):
         
         survey_id=request.GET.get('survey_id')
-        questions = Question.objects.filter(survey__id=survey_id)
-        
+        zone_id=request.GET.get('zone_id')
+        if zone_id and survey_id:
+             
+             questions = Question.objects.filter(survey__id=survey_id , survey__sessions__zone_id =zone_id).distinct()
+        elif survey_id:
+             questions = Question.objects.filter(survey__id=survey_id)
+        else:
+            return response.Response({'survey_id and zone_id invalid parameters'},status=status.HTTP_400_BAD_REQUEST)
+
         dashboard_layout = []
         for question in questions:
             # 2. Process each question based on its type
@@ -26,7 +33,7 @@ class SurveyDashboardView(APIView):
             if visual_data:
                 dashboard_layout.append(visual_data)
                 
-        return response.Response(dashboard_layout)
+        return response.Response(dashboard_layout,status=status.HTTP_200_OK)
 
     def get_visual_data_for_question(self, question:Question):
         """Dispatcher function to generate data based on question type."""
