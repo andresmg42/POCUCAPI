@@ -3,6 +3,8 @@ from subcategory.models import Subcategory
 from survey.models import Survey
 from option.models import Option
 
+
+
 class Question(models.Model):
     subcategory=models.ForeignKey(Subcategory,on_delete=models.CASCADE)
     options = models.ManyToManyField(

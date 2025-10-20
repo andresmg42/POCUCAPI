@@ -4,7 +4,6 @@ from django.shortcuts import render
 from django.db.models import Count, Avg, Min, Max
 from rest_framework.views import APIView
 from rest_framework import response,status
-
 from question.models import Question
 from response.models import Response
 from survey.models import Survey
@@ -69,7 +68,7 @@ class SurveyDashboardView(APIView):
                 for desc in option_descriptions:
                  child_data[desc]=0
 
-                # print('child',child)
+                
 
                 response_counts=Response.objects.filter(question=child).values(
                     'option__description'

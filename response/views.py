@@ -10,8 +10,6 @@ from question.models import Question
 from datetime import datetime
 from django.utils import timezone
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
 
 @api_view(['POST'])
 def create_response(request):
