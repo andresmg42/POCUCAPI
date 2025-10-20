@@ -7,7 +7,7 @@ from . import views
 
 urlpatterns = [
     
-    path("descriptive_analisis_by_survey/", views.SurveyDashboardView.as_view(), name="descriptive_analisis_by_survey"),
+    path("descriptive_analisis_by_question/", views.SurveyDashboardView.as_view(), name="descriptive_analisis_by_question"),
     # path("category_completed/", views.questions_of_category_completed, name="questions_of_category_completed"),
     # path('', include(router.urls)),
 ]
