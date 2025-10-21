@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # In your app's views.py
-from django.db.models import Count, Avg, Min, Max
+from django.db.models import Count, Avg, Min, Max,Q
 from rest_framework.views import APIView
 from rest_framework import response,status
 from question.models import Question
@@ -19,7 +19,8 @@ class SurveyDashboardView(APIView):
         
         question_id = request.GET.get('question_id')
         zone_id = request.GET.get('zone_id')
-        # survey_id=request.GET.get('survey_id')
+        survey_id=request.GET.get('survey_id')
+        
         
        
         if not question_id:
@@ -31,15 +32,9 @@ class SurveyDashboardView(APIView):
 
         try:
            
-            query_params = {
-                'id': question_id, 
-                
-            }
-            if zone_id:
-                query_params['survey__sessions__zone_id'] = zone_id
+           
             
-            
-            question = Question.objects.filter(**query_params).first()
+            question = Question.objects.filter(id=question_id,survey=survey_id).first()
 
             
         except Exception as e:
@@ -55,14 +50,9 @@ class SurveyDashboardView(APIView):
         if not question:
             return response.Response({'message':'questions not fount'},status=status.HTTP_404_NOT_FOUND)
         
-        visual_data = self.get_visual_data_for_question(question)
+        visual_data = self.get_visual_data_for_question(question,zone_id)
         
 
-
-
-        
-        
-        
         if visual_data:
             
             return response.Response(visual_data, status=status.HTTP_200_OK)
@@ -76,14 +66,20 @@ class SurveyDashboardView(APIView):
                 
         
 
-    def get_visual_data_for_question(self, question:Question):
+    def get_visual_data_for_question(self, question:Question,zone_id=None):
         """Dispatcher function to generate data based on question type."""
         
+
         
         if question.question_type == 'unique_response':
+
+            filters=Q(response__question_id=question.id)
+
+            if zone_id:
+                filters &= Q(response__visita__surveysession__zone_id=zone_id)
             
             data = question.options.all().annotate(
-                response_count=Count('response')
+                response_count=Count('response', filter=filters)
             ).values('description', 'response_count')
             
             return {
@@ -97,6 +93,11 @@ class SurveyDashboardView(APIView):
 
         
         elif question.question_type == 'matrix_parent':  
+
+            filters=Q()
+
+            if zone_id:
+                filters &=Q(visita__surveysession__zone_id=zone_id)
 
             final_data=[]
 
@@ -115,7 +116,7 @@ class SurveyDashboardView(APIView):
                 response_counts=Response.objects.filter(question=child).values(
                     'option__description'
                 ).annotate(
-                    count=Count('id')
+                    count=Count('id',filter=filters)
                 )
 
                 for item in response_counts:
