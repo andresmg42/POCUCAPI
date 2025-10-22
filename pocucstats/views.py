@@ -108,12 +108,13 @@ class SurveyDashboardView(APIView):
             
             mode_result = mode_query.first()
             aggregate_data['mode'] = mode_result
+            aggregate_data['description']=question.description if len(question.description)<15 else question.code
 
             return {
                 'id': question.id,
                 'description': question.description,
                 'question_code': question.code,
-                'aggregate_stats': aggregate_data,
+                'aggregate_stats': [aggregate_data],
                 'visualization_type': 'bar_chart',
                 'data': list(data)
             }
@@ -171,7 +172,7 @@ class SurveyDashboardView(APIView):
                 ).order_by('-count')
                 
                 aggregate_data['mode'] = mode_query.first()
-                aggregate_data['name'] = child.description
+                aggregate_data['description'] = child.description 
 
                 # 6. Assemble the final data for this child
                 final_data.append(options_data)
@@ -182,7 +183,7 @@ class SurveyDashboardView(APIView):
                 'description': question.description,
                 'question_code': question.code,
                 'visualization_type': 'stacked_bar_100_percent',
-                'aggregate_data': final_aggregate_data,
+                'aggregate_stats': final_aggregate_data,
                 'data': final_data
             }
                      
