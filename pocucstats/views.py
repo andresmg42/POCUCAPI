@@ -97,16 +97,28 @@ class SurveyDashboardView(APIView):
                 average=Avg('numeric_value'),
                 minimum=Min('numeric_value'),
                 maximum=Max('numeric_value'),
-                count=Count('numeric_value')
+                count=Count('numeric_value'),
+                count_text=Count('text_value')
             )
 
-            # 4. Get the mode. 
-            # FIX 2: Removed 'filter=count_filter'. Queryset is already filtered.
-            mode_query = response_queryset.values('numeric_value').annotate(
+           
+            mode_query_number = response_queryset.filter(numeric_value__isnull=False).values('numeric_value').annotate(
                 count=Count('numeric_value')
             ).order_by('-count')
+
+            mode_query_text=response_queryset.filter(text_value__isnull=False).values('text_value').annotate(
+                count=Count('text_value')
+            ).order_by('-count')
+
+            numeric_mode=mode_query_number.first()
+
+            if numeric_mode:
+                mode_result = numeric_mode
+            else:
+                mode_result=mode_query_text.first()
+
+
             
-            mode_result = mode_query.first()
             aggregate_data['mode'] = mode_result
             aggregate_data['description']=question.description if len(question.description)<15 else question.code
 
@@ -125,27 +137,24 @@ class SurveyDashboardView(APIView):
             option_descriptions = list(question.options.all().values_list('description', flat=True))
             child_questions = question.child_questions.all().order_by('code')
 
-            # FIX 3: This filter is for the annotation and only needs the zone.
-            # The question=child filter is applied in the .filter() part below.
+            
             count_filter = Q()
             if zone_id:
                 count_filter = Q(visita__surveysession__zone_id=zone_id)
 
             for child in child_questions:
-                # 1. Base QuerySet FOR THIS CHILD (Filters for child and zone)
+                
                 child_response_filters = Q(question=child)
                 if zone_id:
                     child_response_filters &= Q(visita__surveysession__zone_id=zone_id)
                 child_response_queryset = Response.objects.filter(child_response_filters)
 
-                # 2. Prepare data for the matrix chart
+                
                 options_data = {'name': child.description}
                 for desc in option_descriptions:
                     options_data[desc] = 0
 
-                # 3. Get counts for this child, grouped by option.
-                # We filter for the child first, then apply the (optional) zone filter
-                # inside the annotation.
+                
                 response_counts = Response.objects.filter(question=child).values(
                     'option__description'
                 ).annotate(
@@ -162,16 +171,26 @@ class SurveyDashboardView(APIView):
                     average=Avg('numeric_value'),
                     minimum=Min('numeric_value'),
                     maximum=Max('numeric_value'),
-                    count=Count('numeric_value')
+                    count=Count('numeric_value'),
+                    count_text=Count('text_value')
                 )
 
-                # 5. Get mode FOR THIS CHILD.
-                # FIX 4: Removed 'filter=count_filter'. Queryset is already filtered.
-                mode_query = child_response_queryset.values('numeric_value').annotate(
-                    count=Count('numeric_value')
+                mode_query_number = child_response_queryset.filter(numeric_value__isnull=False).values('numeric_value').annotate(
+                count=Count('numeric_value')
                 ).order_by('-count')
+
+                mode_query_text=child_response_queryset.filter(text_value__isnull=False).values('text_value').annotate(
+                    count=Count('text_value')
+                ).order_by('-count')
+
+                numeric_mode=mode_query_number.first()
+
+                if numeric_mode:
+                    mode_result = numeric_mode
+                else:
+                    mode_result=mode_query_text.first()
                 
-                aggregate_data['mode'] = mode_query.first()
+                aggregate_data['mode'] = mode_result
                 aggregate_data['description'] = child.description 
 
                 # 6. Assemble the final data for this child
