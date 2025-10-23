@@ -31,3 +31,5 @@ def update_session_on_visit_delete(sender,instance,**kwargs):
         session.save(update_fields=['state','end_date'])
 
 
+
+

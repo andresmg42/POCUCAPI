@@ -20,7 +20,7 @@ def get_visits_by_id_session(request):
 
     surveysession=Surveysession.objects.get(id=id_surveysession)
     
-    visits= Visit.objects.filter(surveysession=surveysession)
+    visits= Visit.objects.filter(surveysession=surveysession).order_by('visit_number')
     serializer=VisitSerializer(visits,many=True)
 
 
