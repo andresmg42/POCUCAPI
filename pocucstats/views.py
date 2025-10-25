@@ -73,26 +73,24 @@ class SurveyDashboardView(APIView):
 
         if question.question_type == 'unique_response':
 
-            # 1. Base QuerySet for Aggregates & Mode (Filters for question and zone)
+            
             response_filters = Q(question=question)
             if zone_id:
                 response_filters &= Q(visita__surveysession__zone_id=zone_id)
             response_queryset = Response.objects.filter(response_filters)
 
-            # 2. Filter for the 'data' annotation. This is different!
-            # Your insight was correct: we must filter for this specific question.
+            
             count_filter = Q(response__question=question)
             if zone_id:
-                # FIX 1: Removed 'response__' prefix. Path is from the Response model.
+                
                 count_filter &= Q(response__visita__surveysession__zone_id=zone_id)
             
             data = question.options.all().annotate(
-                # This now correctly counts responses for THIS option AND THIS question
+                
                 response_count=Count('response', filter=count_filter)
             ).values('description', 'response_count')
 
-            # 3. Get aggregate stats. 
-            # FIX 2: Removed 'filter=count_filter'. Queryset is already filtered.
+            
             aggregate_data = response_queryset.aggregate(
                 average=Avg('numeric_value'),
                 minimum=Min('numeric_value'),
@@ -193,7 +191,7 @@ class SurveyDashboardView(APIView):
                 aggregate_data['mode'] = mode_result
                 aggregate_data['description'] = child.description 
 
-                # 6. Assemble the final data for this child
+                
                 final_data.append(options_data)
                 final_aggregate_data.append(aggregate_data)
 
