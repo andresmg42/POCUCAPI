@@ -5,9 +5,15 @@ from option.serailizer import OptionSerializer
 
 
 class QuestionSerializerSimple(serializers.ModelSerializer):
+    subcategory=serializers.SerializerMethodField()
     class Meta:
         model=Question
         fields='__all__'
+
+    def get_subcategory(self,obj:Question):
+        if obj.subcategory:
+            return obj.subcategory.name
+        return None
 
 class QuestionSerializer(serializers.ModelSerializer):
     options=OptionSerializer(many=True,read_only=True)
