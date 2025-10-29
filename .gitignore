@@ -1,0 +1,12 @@
+# Python bytecode
+__pycache__/
+
+# Django database migrations
+*/migrations/
+
+# Local database file
+db.sqlite3
+
+**/firebase_key.json
+
+.env
