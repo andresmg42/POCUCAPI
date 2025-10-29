@@ -31,7 +31,7 @@ DEBUG = os.environ.get('DEBUG','True')=='True'
 
 ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS','127.0.0.1')]
 
-CORS_ALLOWED_ORIGINS=["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS=["*"]
 
 
 # Application definition
