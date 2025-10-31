@@ -153,7 +153,7 @@ class SurveyDashboardView(APIView):
                     options_data[desc] = 0
 
                 
-                response_counts = Response.objects.filter(question=child).values(
+                response_counts = Response.objects.filter(child_response_filters).values(
                     'option__description'
                 ).annotate(
                     count=Count('id', filter=count_filter) 
