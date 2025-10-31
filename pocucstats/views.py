@@ -50,7 +50,7 @@ class SurveyDashboardView(APIView):
         if not question:
             return response.Response({'message':'questions not fount'},status=status.HTTP_404_NOT_FOUND)
         
-        visual_data = self.get_visual_data_for_question(question,zone_id)
+        visual_data = self.get_visual_data_for_question(question,zone_id,survey_id)
         
 
         if visual_data:
@@ -68,19 +68,19 @@ class SurveyDashboardView(APIView):
 
 
 
-    def get_visual_data_for_question(self, question: Question, zone_id=None):
+    def get_visual_data_for_question(self, question: Question, zone_id=None,survey_id=1):
         """Dispatcher function to generate data based on question type."""
 
         if question.question_type == 'unique_response':
 
             
-            response_filters = Q(question=question)
+            response_filters = Q(question=question,visita__surveysession__survey_id=survey_id)
             if zone_id:
                 response_filters &= Q(visita__surveysession__zone_id=zone_id)
             response_queryset = Response.objects.filter(response_filters)
 
             
-            count_filter = Q(response__question=question)
+            count_filter = Q(response__question=question,response__visita__surveysession__survey_id=survey_id)
             if zone_id:
                 
                 count_filter &= Q(response__visita__surveysession__zone_id=zone_id)
@@ -142,7 +142,7 @@ class SurveyDashboardView(APIView):
 
             for child in child_questions:
                 
-                child_response_filters = Q(question=child)
+                child_response_filters = Q(question=child,visita__surveysession__survey_id=survey_id)
                 if zone_id:
                     child_response_filters &= Q(visita__surveysession__zone_id=zone_id)
                 child_response_queryset = Response.objects.filter(child_response_filters)
