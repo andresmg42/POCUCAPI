@@ -77,7 +77,7 @@ def validate_visit_is_completed(data,visit_id):
     try:
         visit=Visit.objects.select_related('surveysession__survey').get(id=visit_id)
 
-        required_questions_ids=set(visit.surveysession.survey.questions.exclude(question_type='matrix_parent').values_list('id',flat=True))
+        required_questions_ids=set(visit.surveysession.survey.questions.filter(is_required=True).exclude(question_type='matrix_parent').values_list('id',flat=True))
 
     
     except Visit.DoesNotExist:
@@ -87,7 +87,7 @@ def validate_visit_is_completed(data,visit_id):
     answered_questions_ids={response['question'].id for response in data}
 
     
-    questions_already_answered_ids=set(Response.objects.filter(visita=visit_id).values_list('question_id',flat=True))
+    questions_already_answered_ids=set(Response.objects.filter(visita=visit_id,question__is_required=True).values_list('question_id',flat=True))
 
     
     all_answered_questions=answered_questions_ids.union(questions_already_answered_ids)

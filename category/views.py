@@ -63,9 +63,9 @@ def questions_of_category_completed(request):
     try:
         visit=Visit.objects.get(id=visit_id)
         survey=visit.surveysession.survey
-        num_original_questions_by_category=Question.objects.filter(subcategory__category__id=category_id,survey=survey).exclude(question_type='matrix_parent').count()
+        num_original_questions_by_category=Question.objects.filter(subcategory__category__id=category_id,survey=survey,is_required=True).exclude(question_type='matrix_parent').count()
         print('original_q',num_original_questions_by_category)
-        num_responses_related_category_id=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id).count()
+        num_responses_related_category_id=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id,question__is_required=True).count()
         print('num_resp',num_responses_related_category_id)
         
         result=(num_original_questions_by_category > 0 and   num_original_questions_by_category==num_responses_related_category_id)

@@ -21,7 +21,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     sub_questions=serializers.SerializerMethodField()
     class Meta:
         model=Question
-        fields=['id','subcategory','code','question_type','description','parent_question','survey','options','sub_questions']
+        fields=['id','subcategory','code','question_type','description','parent_question','survey','options','sub_questions','is_required']
 
     def get_sub_questions(self,obj):
         children=[child for child in self.context.get('all_questions') if child.parent_question and child.parent_question.id==obj.id]

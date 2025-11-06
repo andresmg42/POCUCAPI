@@ -17,6 +17,7 @@ class Question(models.Model):
     description=models.TextField()
     parent_question=models.ForeignKey('self', on_delete=models.CASCADE,null=True,blank=True,related_name='child_questions')
     survey=models.ManyToManyField(Survey,related_name='questions')
+    is_required=models.BooleanField(default=True)
 
     
     def __str__(self):
