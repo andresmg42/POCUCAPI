@@ -52,10 +52,11 @@ class SurveysessionSerializer(serializers.ModelSerializer):
 class SessionReportSerializer(serializers.ModelSerializer):
     survey=serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
     visits_rate= serializers.SerializerMethodField()
+    zone_name= serializers.SerializerMethodField()
 
     class Meta:
         model=Surveysession
-        fields=['id','zone','observer','survey','uploaded_at','url','number_session','start_date','end_date','observational_distance','visits_rate','state']
+        fields=['id','zone','zone_name','observer','survey','uploaded_at','url','number_session','start_date','end_date','observational_distance','visits_rate','state']
 
     def get_visits_rate(self,obj):
 
@@ -76,6 +77,9 @@ class SessionReportSerializer(serializers.ModelSerializer):
         except Exception as e:
 
             return f'Error calculating rate:{e}'
+        
+    def get_zone_name(self,obj):
+        return obj.zone.name
         
 
 

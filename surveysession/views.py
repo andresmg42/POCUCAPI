@@ -64,34 +64,6 @@ def update_start_session(request):
     return response.Response({'message':'session_start_date_time and state updated successfully'},status=status.HTTP_200_OK)
 
 
-# @api_view(['POST'])
-# def update_start_date(request):
-
-#     data=request.data
-
-#     session_id=data['survesession_id']
-
-#     if not session_id:
-#         return response.Response({'message': 'surveysession_id is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     try:
-
-#         session=Surveysession.objects.get(id=session_id)
-
-#         if session.state==0:
-#             session.state=1
-#             session.start_date=timezone.now()
-#             session.save()
-
-
-#     except Surveysession.DoesNotExist:
-#         return response.Response({'message':'surveysession object does not exists'},status=status.HTTP_404_NOT_FOUND)
-#     except Exception as e:
-#         return response.Response({'messge':'an unexpected error occurred in update_start_date'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-#     return response.Response({'message':'start_date and state updated successfully in surveysession'},status=status.HTTP_200_OK)
-
-
 
 
 @api_view(['GET'])
