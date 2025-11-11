@@ -3,6 +3,7 @@ from .models import Surveysession
 from .models import Surveysession, Zone, Observer, Survey
 from django.utils import timezone
 from visit.models import Visit
+from django.db import transaction
 
 
 
@@ -22,6 +23,8 @@ class SurveysessionSerializer(serializers.ModelSerializer):
     
     # The survey field can still use its ID.
     survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
+
+    number_session=serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Surveysession
@@ -47,6 +50,20 @@ class SurveysessionSerializer(serializers.ModelSerializer):
             instance.end_date=None
             instance.save(update_fields=['state','end_date'])
         return instance
+    
+    def create(self,validated_data):
+        
+        with transaction.atomic():
+            last_session=Surveysession.objects.select_for_update().filter(survey=validated_data['survey'],observer=validated_data['observer'],zone=validated_data['zone']).order_by('-number_session').first()
+
+            if last_session:
+                new_number=last_session.number_session + 1
+            else:
+                new_number=1
+
+            validated_data['number_session'] =new_number
+
+            return super().create(validated_data)
 
 
 class SessionReportSerializer(serializers.ModelSerializer):

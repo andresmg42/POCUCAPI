@@ -9,7 +9,7 @@ class Surveysession(models.Model):
     survey=models.ForeignKey(Survey,on_delete=models.CASCADE,related_name='sessions')
     uploaded_at=models.DateField("uploaded_at",auto_now_add=True)
     url=models.CharField(max_length=100)
-    number_session=models.CharField(max_length=20)
+    number_session=models.IntegerField()
     start_date=models.DateTimeField(null=True,blank=True)
     end_date=models.DateTimeField(null=True,blank=True)
     observational_distance=models.CharField(max_length=20)
