@@ -54,7 +54,7 @@ class SurveysessionSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         
         with transaction.atomic():
-            last_session=Surveysession.objects.select_for_update().filter(survey=validated_data['survey'],observer=validated_data['observer'],zone=validated_data['zone']).order_by('-number_session').first()
+            last_session=Surveysession.objects.select_for_update().filter(survey=validated_data['survey'],observer=validated_data['observer']).order_by('-number_session').first()
 
             if last_session:
                 new_number=last_session.number_session + 1
