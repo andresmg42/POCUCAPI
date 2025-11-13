@@ -64,8 +64,13 @@ def questions_of_category_completed(request):
         visit=Visit.objects.get(id=visit_id)
         survey=visit.surveysession.survey
         num_original_questions_by_category=Question.objects.filter(subcategory__category__id=category_id,survey=survey,is_required=True).exclude(question_type='matrix_parent').count()
+        num_original_q_debug=Question.objects.filter(subcategory__category__id=category_id,survey=survey,is_required=True).exclude(question_type='matrix_parent')
         print('original_q',num_original_questions_by_category)
+        for q in num_original_q_debug:
+            print(f'question_id={q.id}, question_code={q.code}')
+        
         num_responses_related_category_id=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id,question__is_required=True).count()
+        # num_responses_related_debug=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id,question__is_required=True)
         print('num_resp',num_responses_related_category_id)
         
         result=(num_original_questions_by_category > 0 and   num_original_questions_by_category==num_responses_related_category_id)
