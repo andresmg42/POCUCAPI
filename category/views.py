@@ -72,8 +72,8 @@ def questions_of_category_completed(request):
         num_responses_related_category_id=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id,question__is_required=True).count()
         num_responses_debug=Response.objects.filter(visita=visit_id,question__subcategory__category__id=category_id,question__is_required=True)
         print('num_resp',num_responses_related_category_id)
-        for q in num_responses_debug:
-            print(f'question_id={q.id}, question_code={q.code}')
+        for r in num_responses_debug:
+            print(f'question_id={r.question.id}, question_code={r.question.code}')
         
         result=(num_original_questions_by_category > 0 and   num_original_questions_by_category==num_responses_related_category_id)
 
