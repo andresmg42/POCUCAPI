@@ -10,6 +10,8 @@ from . import views
 
 urlpatterns = [
     path('get_questions_by_survey',views.get_question_by_survey,name='get_questions_by_survey'),
+    # path('create_new_child_question',views.create_new_child_question,name='create_new_child_question'),
+
     path('',include(router.urls))
 ]
 
