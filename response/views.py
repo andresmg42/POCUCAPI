@@ -9,15 +9,19 @@ from visit.models import Visit
 from question.models import Question
 from datetime import datetime
 from django.utils import timezone
+from .models import QuestionCommentAnswer
+from .serializer import QuestionCommentAnswerSerializer
 
 
 @api_view(['POST'])
 def create_response(request):
-    response_data=request.data
+    data=request.data
 
-    # timestamp=request.data['timestamp']
+    print(data)
 
-    print(response_data)
+    response_data=data.get('answers',{})
+    comments_data=data.get('comments',{})
+
     responses=[]
     raw_responses=[]
 
@@ -161,5 +165,36 @@ def delete_responses_by_category(request):
         return response.Response({'message':'error in delete_questions_by_category','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def store_response_comments(comments):
+  
+  raw_comments=[]
 
+  try:
+
+    for question_id,comment in comments.items():
+                new_res={'question':question_id,
+                        'visita':comment.get('visitId'),
+                        'comment':comment.get('comment'),
+                        }
+                raw_comments.append(new_res)
+    
+    serializer=QuestionCommentAnswerSerializer(data=raw_comments,many=True)
+
+    if serializer.is_valid():
+        
+        objects_to_create=[QuestionCommentAnswer(**data) for data in serializer.validated_data]
+
+        QuestionCommentAnswer.objects.bulk_create(objects_to_create,ignore_conflicts=True)
+
+       
+  except Exception as e:
+    raise e
+        
+
+
+
+
+
+
+        
 

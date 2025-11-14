@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Response
+from .models import QuestionCommentAnswer
 
 
 class ResponseSerializer(serializers.ModelSerializer):
@@ -9,4 +10,7 @@ class ResponseSerializer(serializers.ModelSerializer):
         fields='__all__'
     
 
-
+class QuestionCommentAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model:QuestionCommentAnswer
+        fields='__all__'
