@@ -62,7 +62,7 @@ def get_questions_and_options(request):
         all_questions= Question.objects.filter(
             survey=sessionsurvey.survey,
             subcategory__in=category.subcategory_set.all()
-        ).prefetch_related('options')
+        ).prefetch_related('options').order_by('position')
 
 
         top_level_questions=[q for q in all_questions if q.parent_question is None]
