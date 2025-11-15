@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from rest_framework import status,response
 from rest_framework.decorators import api_view
 from .serializer import ResponseSerializer
-from .models import Response
+from .models import Response,QuestionCommentAnswer
 from surveysession.models import Surveysession
 from survey.models import Survey
 from visit.models import Visit
@@ -150,6 +150,7 @@ def delete_responses_by_category(request):
     try:
 
         delete_count,_=Response.objects.filter(question__subcategory__category_id=category_id,visita=visit_id).delete()
+        delete_comments_count,_=QuestionCommentAnswer.objects.filter(question__subcategory__category_id=category_id,visita=visit_id).delete()
         
         if delete_count>0:
             visit=Visit.objects.get(id=visit_id)

@@ -25,4 +25,4 @@ class Surveysession(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.survey.name}-session-{self.number_session}'
+        return f'{self.observer.name}-{self.survey.name}-session-{self.number_session}'
