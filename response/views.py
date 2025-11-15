@@ -11,6 +11,7 @@ from datetime import datetime
 from django.utils import timezone
 from .models import QuestionCommentAnswer
 from .serializer import QuestionCommentAnswerSerializer
+from rest_framework.exceptions import ValidationError
 
 
 @api_view(['POST'])
@@ -54,6 +55,8 @@ def create_response(request):
             objects_to_create=[Response(**data) for data in validated_data]
 
             Response.objects.bulk_create(objects_to_create,ignore_conflicts=True)
+
+            store_response_comments(comments_data)
 
             if validate_visit_is_completed(validated_data,visit_id) :
                
@@ -167,28 +170,33 @@ def delete_responses_by_category(request):
 
 def store_response_comments(comments):
   
-  raw_comments=[]
+    raw_comments=[]
 
-  try:
+  
 
     for question_id,comment in comments.items():
-                new_res={'question':question_id,
-                        'visita':comment.get('visitId'),
-                        'comment':comment.get('comment'),
-                        }
-                raw_comments.append(new_res)
+                if comment:
+                    new_res={'question':question_id,
+                            'visita':comment.get('visitId'),
+                            'comment':comment.get('comment'),
+                            }
+                    raw_comments.append(new_res)
+
+    if not raw_comments:
+        return
     
     serializer=QuestionCommentAnswerSerializer(data=raw_comments,many=True)
 
-    if serializer.is_valid():
-        
-        objects_to_create=[QuestionCommentAnswer(**data) for data in serializer.validated_data]
+    if not serializer.is_valid():
 
-        QuestionCommentAnswer.objects.bulk_create(objects_to_create,ignore_conflicts=True)
+        raise ValidationError(serializer.errors)
+        
+    objects_to_create=[QuestionCommentAnswer(**data) for data in serializer.validated_data]
+
+    QuestionCommentAnswer.objects.bulk_create(objects_to_create,ignore_conflicts=True)
 
        
-  except Exception as e:
-    raise e
+  
         
 
 

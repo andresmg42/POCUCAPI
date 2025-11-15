@@ -12,5 +12,5 @@ class ResponseSerializer(serializers.ModelSerializer):
 
 class QuestionCommentAnswerSerializer(serializers.ModelSerializer):
     class Meta:
-        model:QuestionCommentAnswer
+        model=QuestionCommentAnswer
         fields='__all__'
