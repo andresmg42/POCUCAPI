@@ -12,7 +12,7 @@ class Question(models.Model):
         blank=True,
         related_name="questions"
     )
-    code=models.CharField(max_length=3)
+    code=models.CharField(max_length=20)
     question_type=models.CharField(max_length=20)
     description=models.TextField()
     parent_question=models.ForeignKey('self', on_delete=models.CASCADE,null=True,blank=True,related_name='child_questions')
