@@ -29,7 +29,7 @@ class QuestionCommentAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='comments')
     
     
-    comment = models.TextField()
+    comment = models.TextField(null=True,blank=True)
 
     class Meta:
         constraints = [
