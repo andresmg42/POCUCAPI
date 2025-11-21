@@ -20,6 +20,9 @@ class SurveysessionSerializer(serializers.ModelSerializer):
         slug_field='number'
     )
 
+    #zone_name
+    zone_name = serializers.StringRelatedField(source='zone', read_only=True)
+
     
     # The survey field can still use its ID.
     survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
@@ -29,7 +32,7 @@ class SurveysessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Surveysession
         fields = [
-            'id', 'zone', 'observer', 'survey', 'number_session', 
+            'id', 'zone','zone_name' 'observer', 'survey', 'number_session', 
             'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number'
         ]
         read_only_fields = ['uploaded_at']
