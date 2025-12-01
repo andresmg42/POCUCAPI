@@ -29,11 +29,13 @@ class SurveysessionSerializer(serializers.ModelSerializer):
 
     number_session=serializers.IntegerField(read_only=True)
 
+    visits_created=serializers.SerializerMethodField()
+
     class Meta:
         model = Surveysession
         fields = [
             'id', 'zone','zone_name', 'observer', 'survey', 'number_session', 
-            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number'
+            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number','visits_created'
         ]
         read_only_fields = ['uploaded_at']
 
@@ -67,6 +69,16 @@ class SurveysessionSerializer(serializers.ModelSerializer):
             validated_data['number_session'] =new_number
 
             return super().create(validated_data)
+    
+    def get_visits_created(self,obj):
+        try:
+            return obj.visits.count()
+        except Exception as e:
+            return 0
+
+        
+        
+
 
 
 class SessionReportSerializer(serializers.ModelSerializer):
@@ -86,7 +98,8 @@ class SessionReportSerializer(serializers.ModelSerializer):
                 state=2
             ).count()
 
-            total_session_visits=Visit.objects.filter(surveysession=obj).count()
+            # total_session_visits=Visit.objects.filter(surveysession=obj).count()
+            total_session_visits=obj.visit_number
 
             if total_session_visits==0:
                 return 0.0
