@@ -12,6 +12,7 @@ from django.utils import timezone
 from .models import QuestionCommentAnswer
 from .serializer import QuestionCommentAnswerSerializer
 from rest_framework.exceptions import ValidationError
+from zone.models import Zone
 
 
 @api_view(['POST'])
@@ -76,34 +77,53 @@ def create_response(request):
 
 
 
-def validate_visit_is_completed(data,visit_id):
-
-    if not data:
+def validate_visit_is_completed(data, visit_id):
+    # 1. Validación básica
+    if not visit_id:
         return False
     
     try:
-        visit=Visit.objects.select_related('surveysession__survey').get(id=visit_id)
+        # Usamos select_related para optimizar la carga de datos relacionados
+        visit = Visit.objects.select_related('surveysession__zone', 'surveysession__survey').get(id=visit_id)
+        zone = visit.surveysession.zone
+        survey = visit.surveysession.survey
 
-        required_questions_ids=set(visit.surveysession.survey.questions.filter(is_required=True).exclude(question_type='matrix_parent').values_list('id',flat=True))
+        # 2. Definir lógica de tipos de zona (Tu matriz de permisos)
+        allowed_types = [zone.zone_type, None] 
+        if zone.zone_type == Zone.ZoneType.MIXED:
+            allowed_types.extend([Zone.ZoneType.OPEN, Zone.ZoneType.CLOSED])
 
-    
+        # 3. Obtener IDs de preguntas REQUERIDAS
+        # GRACIAS A TU RELATED_NAME='questions', podemos acceder directo desde 'survey':
+        required_questions_ids = set(survey.questions.filter(
+            is_required=True, 
+            subcategory__category__target_zone_type__in=allowed_types
+        ).exclude(question_type='matrix_parent').values_list('id', flat=True))
+
     except Visit.DoesNotExist:
         return False
     
-    
-    answered_questions_ids={response['question'].id for response in data}
+    # 4. Recopilar IDs de las respuestas que vienen en 'data' (lo nuevo)
+    new_answers_ids = set()
+    if data:
+        for response_item in data:
+            # Asumiendo que 'data' ya fue validada por el Serializer
+            question_obj = response_item.get('question')
+            if question_obj:
+                new_answers_ids.add(question_obj.id)
 
-    
-    questions_already_answered_ids=set(Response.objects.filter(visita=visit_id,question__is_required=True).values_list('question_id',flat=True))
+    # 5. Recopilar IDs de las respuestas YA guardadas en BD (lo viejo)
+    # Importante: Verifica si el campo en tu modelo Response es 'visit' o 'visita'
+    db_answers_ids = set(Response.objects.filter(
+        visita=visit_id  # Ajusta este nombre si tu campo es 'visit'
+    ).values_list('question_id', flat=True))
 
-    
-    all_answered_questions=answered_questions_ids.union(questions_already_answered_ids)
+    # 6. Unir ambos conjuntos de respuestas
+    all_answered_ids = new_answers_ids.union(db_answers_ids)
 
-    
-    res= required_questions_ids.issubset(all_answered_questions)
-
-    
-    return res
+    # 7. Comprobar si los Requeridos son un subconjunto de los Respondidos
+    # Retorna True solo si faltan 0 preguntas obligatorias
+    return required_questions_ids.issubset(all_answered_ids)
 
 
 def validate_and_update_surveysession_state(visit_id): 
