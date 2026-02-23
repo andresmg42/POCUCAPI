@@ -21,7 +21,7 @@ def get_question_by_survey(request):
 
     if not survey_id:
         return response.Response(
-            {"message": "survey_id is not valid"}, satus=status.HTTP_404_NOT_FOUND
+            {"message": "survey_id is not valid"}, status=status.HTTP_404_NOT_FOUND
         )
 
     try:

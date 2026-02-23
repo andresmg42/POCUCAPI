@@ -14,11 +14,12 @@ class SurveysessionSerializer(serializers.ModelSerializer):
         slug_field='email' 
     )
 
-    # This field now accepts a number string and finds the correct Zone.
-    zone = serializers.SlugRelatedField(
-        queryset=Zone.objects.all(),
-        slug_field='number'
+    # This field accepts the zone's unique ID (pk).
+    zone = serializers.PrimaryKeyRelatedField(
+        queryset=Zone.objects.all()
     )
+
+    campus_name= serializers.ReadOnlyField(source='zone.campus.name')
 
     #zone name
     zone_name = serializers.StringRelatedField(source='zone', read_only=True)
@@ -35,7 +36,7 @@ class SurveysessionSerializer(serializers.ModelSerializer):
         model = Surveysession
         fields = [
             'id', 'zone','zone_name', 'observer', 'survey', 'number_session', 
-            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number','visits_created'
+            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number','visits_created','campus_name'
         ]
         read_only_fields = ['uploaded_at']
 

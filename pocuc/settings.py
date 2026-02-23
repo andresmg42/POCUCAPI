@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'question.apps.QuestionConfig',
     'option.apps.OptionConfig',
     'response.apps.ResponseConfig',
-    'pocucstats.apps.PocucstatsConfig'
+    'pocucstats.apps.PocucstatsConfig',
+    'campus.apps.CampusConfig'
 ]
 
 MIDDLEWARE = [
