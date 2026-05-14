@@ -14,18 +14,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path,include
-from surveysession.views import SurveysessionViewSet # Import view from the app
+from django.urls import path, include
+from surveysession.views import SurveysessionViewSet  # Import view from the app
 from rest_framework.routers import DefaultRouter
 from visit.views import VisitViewSet
 from category.views import CategoryViewSet
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
 router = DefaultRouter()
-router.register(r'surveysession', SurveysessionViewSet, basename='surveysession')
-router.register(r'visit',VisitViewSet,basename='visit')
-router.register(r'category',CategoryViewSet,basename='category')
+router.register(r"surveysession", SurveysessionViewSet, basename="surveysession")
+router.register(r"visit", VisitViewSet, basename="visit")
+router.register(r"category", CategoryViewSet, basename="category")
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("category/", include("category.urls")),
     path("observer/", include("observer.urls")),
     path("option/", include("option.urls")),
@@ -36,8 +43,18 @@ urlpatterns = [
     # path("surveysession/", include("surveysession.urls")),
     path("visit/", include("visit.urls")),
     path("zone/", include("zone.urls")),
-    path("campus/",include("campus.urls")),
-    path('surveysession/', include('surveysession.urls')), 
-    path('pocucstats/', include('pocucstats.urls')), 
-    
+    path("campus/", include("campus.urls")),
+    path("surveysession/", include("surveysession.urls")),
+    path("pocucstats/", include("pocucstats.urls")),
+    # The schema generation endpoint
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    # Optional UI:
+    path(
+        "api/docs/swagger/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
+    ),
 ]
