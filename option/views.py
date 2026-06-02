@@ -1,5 +1,9 @@
-from django.http import HttpResponse
+from .models import Option
+from rest_framework import viewsets, status, response
+from .serailizer import OptionSerializer
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+class OptionViewSet(viewsets.ModelViewSet):
+
+    queryset = Option.objects.all()
+    serializer_class = OptionSerializer

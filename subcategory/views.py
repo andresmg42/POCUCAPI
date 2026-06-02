@@ -1,5 +1,10 @@
-from django.http import HttpResponse
+from rest_framework import viewsets, status, response
+from .models import Subcategory
+from .serializer import SubcategorySerializer
+from rest_framework.decorators import api_view
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+class SubcategoryViewSet(viewsets.ModelViewSet):
+
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer

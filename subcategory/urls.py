@@ -1,7 +1,10 @@
-from django.urls import path
-
 from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r"", views.SubcategoryViewSet, basename="subcategory")
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", include(router.urls)),
 ]

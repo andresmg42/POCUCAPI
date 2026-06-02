@@ -35,7 +35,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("category/", include("category.urls")),
     path("observer/", include("observer.urls")),
-    path("option/", include("option.urls")),
+    path("options/", include("option.urls")),
     path("question/", include("question.urls")),
     path("response/", include("response.urls")),
     path("subcategory/", include("subcategory.urls")),
