@@ -19,15 +19,9 @@ urlpatterns = [
         name="get_questions_control_panel",
     ),
     path(
-        "create_or_update_batch_questions",
-        views.create_or_update_batch_questions,
-        name="create_or_update_batch_questions",
+        "reorder_questions",
+        views.reorder_questions,
+        name="reorder_questions",
     ),
-    # path(
-    #     "update_batch_questions",
-    #     views.update_batch_questions,
-    #     name="update_batch_questions",
-    # ),
-    # path('create_new_child_question',views.create_new_child_question,name='create_new_child_question'),
     path("", include(router.urls)),
 ]
