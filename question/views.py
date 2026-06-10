@@ -143,3 +143,27 @@ def reorder_questions(request):
     
     return response.Response({"message":f"{len(questions)} Questions updated successfully"},status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+def get_questions_bank(request):
+
+    try:
+
+        all_questions = list(Question.objects.all().select_related("subcategory__category", "parent_question").prefetch_related("options"))
+
+        top_level_questions = sorted(
+            [q for q in all_questions if q.parent_question is None],
+            key=lambda q: q.position,
+        )
+
+        serializer = QuestionSerializer(
+            top_level_questions, many=True, context={"all_questions": all_questions}
+        )
+
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return response.Response(
+            {"message": "an unexpected error has occurred", "error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

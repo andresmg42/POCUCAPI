@@ -23,5 +23,10 @@ urlpatterns = [
         views.reorder_questions,
         name="reorder_questions",
     ),
+    path(
+        "get_questions_bank",
+        views.get_questions_bank,
+        name="get_questions_bank"
+    ),
     path("", include(router.urls)),
 ]
