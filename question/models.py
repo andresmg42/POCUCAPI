@@ -36,8 +36,8 @@ class Question(models.Model):
         ordering=['position']
         constraints=[
             models.UniqueConstraint(
-                fields=['code','subcategory'],
-                name='unique_code_per_subcategory'
+                fields=['code','category'],
+                name='unique_code_per_category'
             )
         ]
 
