@@ -34,12 +34,7 @@ class Question(models.Model):
 
     class Meta:
         ordering=['position']
-        constraints=[
-            models.UniqueConstraint(
-                fields=['code','subcategory'],
-                name='unique_code_per_subcategory'
-            )
-        ]
+        
 
     
     def __str__(self):
