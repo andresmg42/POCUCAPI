@@ -13,11 +13,11 @@ urlpatterns = [
         views.get_question_by_survey,
         name="get_questions_by_survey",
     ),
-    path(
-        "get_questions_by_survey_cpanel",
-        views.get_questions_control_panel,
-        name="get_questions_control_panel",
-    ),
+    # path(
+    #     "get_questions_by_survey_cpanel",
+    #     views.get_questions_control_panel,
+    #     name="get_questions_control_panel",
+    # ),
     path(
         "reorder_questions",
         views.reorder_questions,

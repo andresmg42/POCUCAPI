@@ -57,59 +57,6 @@ def get_question_by_survey(request):
         )
 
 
-@api_view(["GET"])
-def get_questions_control_panel(request):
-    survey_id = request.GET.get("survey_id")
-
-    if not survey_id:
-        return response.Response(
-            {"message": "survey_id is not valid"}, status=status.HTTP_404_NOT_FOUND
-        )
-    try:
-        questions = list(
-            Question.objects.filter(survey=survey_id, parent_question=None)
-            .select_related("subcategory__category")
-            .prefetch_related("options", "survey")
-            .order_by("position")
-        )
-        all_questions = list(
-            Question.objects.filter(survey=survey_id)
-            .select_related("subcategory__category", "parent_question")
-            .prefetch_related("options", "survey")
-        )
-
-        serializer = QuestionSerializer(
-            questions, many=True, context={"all_questions": all_questions}
-        )
-
-        grouped_data = {}
-        for question_obj, question_data in zip(questions, serializer.data):
-            category_name = None
-            subcategory_name = None
-
-            if question_obj.subcategory and question_obj.subcategory.category:
-                category_name = question_obj.subcategory.category.name
-            if question_obj.subcategory:
-                subcategory_name = question_obj.subcategory.name
-
-            if category_name is None:
-                category_name = "Uncategorized"
-            if subcategory_name is None:
-                subcategory_name = "Uncategorized"
-
-            grouped_data.setdefault(category_name, {})
-            grouped_data[category_name].setdefault(subcategory_name, [])
-            grouped_data[category_name][subcategory_name].append(question_data)
-
-        return response.Response(grouped_data, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        return response.Response(
-            {"message": "an unexpected error has occurred", "error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-
 @api_view(['POST'])
 def reorder_questions(request):
     new_questions=request.data
