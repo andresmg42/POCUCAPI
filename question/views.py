@@ -24,16 +24,26 @@ class QuestionViewSet(viewsets.ModelViewSet):
 @api_view(["GET"])
 def get_question_by_survey(request):
     survey_id = request.GET.get("survey_id")
+    question_id=request.GET.get("question_id")
+
 
     if not survey_id:
         return response.Response(
             {"message": "survey_id is not valid"}, status=status.HTTP_404_NOT_FOUND
         )
+    
+    params={
+        "survey":survey_id,
+        "parent_question":None
+        }
+
+    if question_id:
+        params["id"]=question_id
 
     try:
 
         questions = list(
-            Question.objects.filter(survey=survey_id, parent_question=None)
+            Question.objects.filter(**params)
             .select_related("subcategory__category")
             .prefetch_related("options", "survey")
             .order_by("position")
