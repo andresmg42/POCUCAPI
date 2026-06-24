@@ -76,6 +76,21 @@ class SurveysessionSerializer(serializers.ModelSerializer):
             return obj.visits.count()
         except Exception as e:
             return 0
+        
+    def validate_visit_number(self,value):
+        
+        if self.instance:
+            current_visit=self.instance.visit_number
+            if value < current_visit:
+                raise serializers.ValidationError(f"The new visit_number must be higher than the current visit_number={current_visit} ")
+        
+        else:
+            if value < 1:
+                raise serializers.ValidationError("The visit_number value must be higher or equal than 1")
+        
+        return value
+
+        
 
         
         
