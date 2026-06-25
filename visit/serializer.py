@@ -6,9 +6,13 @@ class VisitSerializer(serializers.ModelSerializer):
 
     visit_number=serializers.IntegerField(read_only=True)
 
+    observer=serializers.ReadOnlyField(source='surveysession.observer.name')
+    survey=serializers.ReadOnlyField(source='surveysession.survey.name')
+    
+
     class Meta:
         model=Visit
-        fields=['id','surveysession','visit_number','visit_start_date_time','visit_end_date_time','state']
+        fields=['id','surveysession','observer','survey','visit_number','visit_start_date_time','visit_end_date_time','state']
     
     def create(self,validated_data):
         
@@ -23,6 +27,10 @@ class VisitSerializer(serializers.ModelSerializer):
             validated_data['visit_number'] =new_number
 
             return super().create(validated_data) 
+    
+    
+        
+
 
             
             

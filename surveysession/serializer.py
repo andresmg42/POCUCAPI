@@ -32,11 +32,13 @@ class SurveysessionSerializer(serializers.ModelSerializer):
 
     visits_created=serializers.SerializerMethodField()
 
+    survey_name=serializers.ReadOnlyField(source='survey.name')
+
     class Meta:
         model = Surveysession
         fields = [
             'id', 'zone','zone_name', 'observer', 'survey', 'number_session', 
-            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number','visits_created','campus_name'
+            'start_date', 'end_date', 'observational_distance', 'url', 'uploaded_at','state','visit_number','visits_created','campus_name','survey_name'
         ]
         read_only_fields = ['uploaded_at']
 
@@ -80,9 +82,9 @@ class SurveysessionSerializer(serializers.ModelSerializer):
     def validate_visit_number(self,value):
         
         if self.instance:
-            current_visit=self.instance.visit_number
-            if value < current_visit:
-                raise serializers.ValidationError(f"The new visit_number must be higher than the current visit_number={current_visit} ")
+            current_visits=Visit.objects.filter(surveysession_id=self.instance.id).count()
+            if value < current_visits:
+                raise serializers.ValidationError(f"The new visit_number must be higher than the current visit count wich is {current_visits} visits")
         
         else:
             if value < 1:
