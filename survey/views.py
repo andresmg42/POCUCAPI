@@ -1,5 +1,3 @@
-from django.http import HttpResponse
-import requests
 from rest_framework.decorators import api_view
 from rest_framework import status, response, viewsets
 from .models import Survey
@@ -7,27 +5,9 @@ from .serializer import SurveySerializer
 from question.models import Question
 from question.serializer import QuestionSerializer
 from surveysession.models import Surveysession
-from option.models import Option
-from option.serailizer import OptionSerializer
 from category.models import Category
-from subcategory.models import Subcategory
-from question.serializer import QuestionSerializer2
 from .serializer import SurveySerializer
-
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
-
-import firebase_admin
-from firebase_admin import credentials, auth
-import os
-
-FIREBASE_KEY_PATH = os.environ.get("FIREBASE_KEY_PATH", "pocuc/firebase_key.json")
-
-cred = credentials.Certificate(FIREBASE_KEY_PATH)
-firebase_admin.initialize_app(cred)
-
 
 class SurveyViewSet(viewsets.ModelViewSet):
 
@@ -103,47 +83,5 @@ def get_questions_and_options(request):
         )
 
 
-class CheckAdminStatus(APIView):
-    def post(self, request, *args, **kwargs):
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return Response(
-                {"error": "Authorization header missing or malformed"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
 
-        id_token = auth_header.split(" ")[1]
-
-        try:
-
-            decoded_token = auth.verify_id_token(id_token)
-            user_email = decoded_token["email"]
-
-            try:
-                user = User.objects.get(email=user_email)
-                if user.is_staff or user.is_superuser:
-                    return Response(
-                        {"isAdmin": True, "message": "Access granted."},
-                        status=status.HTTP_200_OK,
-                    )
-                else:
-                    return Response(
-                        {"isAdmin": False, "message": "User is not an admin."},
-                        status=status.HTTP_403_FORBIDDEN,
-                    )
-            except User.DoesNotExist:
-                return Response(
-                    {"error": "User with this email not found."},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
-        except auth.InvalidIdTokenError:
-            return Response(
-                {"error": "Invalid Firebase ID token"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-        except Exception as e:
-            return Response(
-                {"error": f"An unexpected error occurred: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        

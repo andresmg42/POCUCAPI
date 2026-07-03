@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "pocucstats.apps.PocucstatsConfig",
     "campus.apps.CampusConfig",
     "drf_spectacular",
+    "users.apps.UsersConfig"
 ]
 
 REST_FRAMEWORK = {

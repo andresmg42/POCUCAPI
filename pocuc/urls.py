@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from surveysession.views import SurveysessionViewSet  # Import view from the app
+from surveysession.views import SurveysessionViewSet  
 from rest_framework.routers import DefaultRouter
 from visit.views import VisitViewSet
 from category.views import CategoryViewSet
@@ -40,12 +40,12 @@ urlpatterns = [
     path("response/", include("response.urls")),
     path("subcategory/", include("subcategory.urls")),
     path("survey/", include("survey.urls")),
-    # path("surveysession/", include("surveysession.urls")),
     path("visit/", include("visit.urls")),
     path("zone/", include("zone.urls")),
     path("campus/", include("campus.urls")),
     path("surveysession/", include("surveysession.urls")),
     path("pocucstats/", include("pocucstats.urls")),
+    path("users/",include("users.urls")),
     # The schema generation endpoint
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Optional UI:
@@ -57,4 +57,5 @@ urlpatterns = [
     path(
         "api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"
     ),
+
 ]

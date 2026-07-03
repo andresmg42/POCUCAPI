@@ -1,5 +1,4 @@
 from django.urls import path, include
-from .views import CheckAdminStatus
 from rest_framework.routers import DefaultRouter
 from . import views
 
@@ -11,6 +10,5 @@ urlpatterns = [
     path(
         "get_survey/", views.get_questions_and_options, name="get_questions_and_options"
     ),
-    path("check-admin-status/", CheckAdminStatus.as_view(), name="check_admin_status"),
     path("", include(router.urls)),
 ]
