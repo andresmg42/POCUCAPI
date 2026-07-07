@@ -22,6 +22,7 @@ class ResponseSerializer(serializers.ModelSerializer):
     category_id= serializers.ReadOnlyField(source='question.subcategory.category.id')
     parent_question=serializers.ReadOnlyField(source='question.parent_question.description')
     parent_question_id=serializers.ReadOnlyField(source='question.parent_question.id')
+    question_code=serializers.ReadOnlyField(source='question.code')
     
     class Meta:
         model=Response
@@ -29,7 +30,7 @@ class ResponseSerializer(serializers.ModelSerializer):
                 'text_value','surveysession_id','survey','zone','campus',
                 'question_description','category','subcategory',
                 'observer','observer_email','observer_id','survey_id','zone_id',
-                'campus_id','subcategory_id','category_id','parent_question','parent_question_id']
+                'campus_id','subcategory_id','category_id','parent_question','parent_question_id','question_code']
     
 
 class QuestionCommentAnswerSerializer(serializers.ModelSerializer):

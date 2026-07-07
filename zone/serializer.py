@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Zone
 
 class ZoneSerializer(serializers.ModelSerializer):
+    campus=serializers.ReadOnlyField(source='campus.name')
     class Meta:
         model=Zone
-        fields='__all__'
+        fields=['id','name','number','zone_type','campus']
