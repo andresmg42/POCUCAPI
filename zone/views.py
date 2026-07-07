@@ -4,7 +4,6 @@ from .serializer import ZoneSerializer
 from rest_framework.decorators import api_view
 
 
-
 class ZoneViewSet(viewsets.ModelViewSet):
    
     queryset = Zone.objects.all()

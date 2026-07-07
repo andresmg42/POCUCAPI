@@ -8,24 +8,24 @@ from django.db import transaction
 
 
 class SurveysessionSerializer(serializers.ModelSerializer):
-    # This field now accepts an email string and finds the correct Observer.
+    
     observer = serializers.SlugRelatedField(
         queryset=Observer.objects.all(),
         slug_field='email' 
     )
 
-    # This field accepts the zone's unique ID (pk).
+    
     zone = serializers.PrimaryKeyRelatedField(
         queryset=Zone.objects.all()
     )
 
     campus_name= serializers.ReadOnlyField(source='zone.campus.name')
 
-    #zone name
+    
     zone_name = serializers.StringRelatedField(source='zone', read_only=True)
 
     
-    # The survey field can still use its ID.
+    
     survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
 
     number_session=serializers.IntegerField(read_only=True)
@@ -62,7 +62,9 @@ class SurveysessionSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         
         with transaction.atomic():
-            last_session=Surveysession.objects.select_for_update().filter(survey=validated_data['survey'],observer=validated_data['observer']).order_by('-number_session').first()
+
+            survey=Survey.objects.select_for_update().get(pk=validated_data['survey'].pk)
+            last_session=Surveysession.objects.filter(survey=survey,observer=validated_data['observer']).order_by('-number_session').first()
 
             if last_session:
                 new_number=last_session.number_session + 1
@@ -94,11 +96,6 @@ class SurveysessionSerializer(serializers.ModelSerializer):
 
         
 
-        
-        
-
-
-
 class SessionReportSerializer(serializers.ModelSerializer):
     survey=serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
     visits_rate= serializers.SerializerMethodField()
@@ -117,7 +114,7 @@ class SessionReportSerializer(serializers.ModelSerializer):
                 state=2
             ).count()
 
-            # total_session_visits=Visit.objects.filter(surveysession=obj).count()
+            
             total_session_visits=obj.visit_number
 
             if total_session_visits==0:

@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from campus.models import Campus
 
+
 class Zone(models.Model):
 
     class ZoneType(models.TextChoices):
