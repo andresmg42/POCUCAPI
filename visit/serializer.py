@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Visit
 from django.db import transaction
-from ..surveysession.models import Surveysession
+from surveysession.models import Surveysession
 
 class VisitSerializer(serializers.ModelSerializer):
 
