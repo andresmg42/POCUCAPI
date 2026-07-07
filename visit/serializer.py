@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Visit
 from django.db import transaction
+from ..surveysession.models import Surveysession
 
 class VisitSerializer(serializers.ModelSerializer):
 
@@ -17,7 +18,10 @@ class VisitSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         
         with transaction.atomic():
-            last_visit=Visit.objects.select_for_update().filter(surveysession=validated_data['surveysession']).order_by('-visit_number').first()
+            
+            surveysession=Surveysession.objects.select_for_update().get(pk=validated_data['surveysession'].pk)
+
+            last_visit=Visit.objects.select_for_update().filter(surveysession=surveysession).order_by('-visit_number').first()
 
             if last_visit:
                 new_number=last_visit.visit_number + 1
