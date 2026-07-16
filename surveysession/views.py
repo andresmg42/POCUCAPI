@@ -9,28 +9,35 @@ from zone.models import Zone
 from observer.models import Observer
 from django.utils import timezone
 from .serializer import SessionReportSerializer
-
+from users.user_utils import require_roles,filter_by_identity
+from users.permissions import SurveySessionPermissions
 
 @api_view(["GET"])
+@require_roles("observer")
 def get_surveysession_by_survey_id(request):
 
     id = request.GET.get("survey_id", None)
-    email = request.GET.get("email", None)
 
-    print(email)
-    print(id)
+
     try:
 
-        if id == "undefined" or email == "undefined":
+        if not id or id == "undefined":
             return response.Response(
-                {"message": "id or email invalid in get_surveysession_by_id"},
+                {"message": "survey_id invalid in get_surveysession_by_id"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        observer = Observer.objects.get(email=email)
         survey = Survey.objects.get(id=id)
-        sessions = Surveysession.objects.filter(survey=survey, observer=observer)
-        serializer = SurveysessionSerializer(sessions, many=True)
+
+        identity=request.identity
+
+        if identity.is_observer:
+            queryset=Surveysession.objects.filter(
+                survey=survey,
+                observer=identity.observer
+            )
+        
+        serializer = SurveysessionSerializer(queryset, many=True)
     except Surveysession.DoesNotExist:
         return response.Response(
             {"message": "the survey session do not exists"},
@@ -48,6 +55,7 @@ def get_surveysession_by_survey_id(request):
 
 
 @api_view(["POST"])
+@require_roles("observer")
 def update_start_session(request):
 
     data = request.data
@@ -61,7 +69,7 @@ def update_start_session(request):
 
     try:
 
-        session = Surveysession.objects.get(id=session_id)
+        session = Surveysession.objects.get(id=session_id, observer=request.identity.observer)
 
         if session.state == 0:
             session.state = 1
@@ -86,6 +94,7 @@ def update_start_session(request):
 
 
 @api_view(["GET"])
+@require_roles("admin","staff")
 def get_table_session_info(request):
 
     observer_id = request.GET.get("observer_id")
@@ -120,3 +129,23 @@ class SurveysessionViewSet(viewsets.ModelViewSet):
 
     queryset = Surveysession.objects.all().order_by("-uploaded_at")
     serializer_class = SurveysessionSerializer
+    permission_classes=[SurveySessionPermissions]
+
+    def get_queryset(self):
+
+        identity=self.request.identity
+        qs=Surveysession.objects.all()
+
+        if identity.is_admin or identity.is_staff:
+            return qs
+        
+        return qs.filter(observer=identity.observer)
+
+
+    def perform_create(self,serializer):
+        identity=self.request.identity
+
+        if identity.is_observer and not (identity.is_admin or identity.is_staff):
+            serializer.save(observer=identity.observer)
+        else:
+            serializer.save()

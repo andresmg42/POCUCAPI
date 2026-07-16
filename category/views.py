@@ -11,6 +11,7 @@ from survey.models import Survey
 from response.models import Response
 from visit.models import Visit
 from zone.models import Zone
+from users.permissions import CategoryPermission
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -21,10 +22,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
+    permission_classes=[CategoryPermission]
 
 
 
 @api_view(['GET'])
+
 def get_categories(request):
     surveysession_id = request.GET.get('surveysession_id')
     

@@ -8,6 +8,8 @@ from .serializer import (
 from rest_framework.decorators import api_view
 from django.db import transaction
 from django.db.models import F
+from users.permissions import QuestionPermission
+from users.user_utils import require_roles
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -19,19 +21,20 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer2
+    permission_classes=[QuestionPermission]
 
 
 @api_view(["GET"])
+@require_roles('admin','staff','obsever')
 def get_question_by_survey(request):
     survey_id = request.GET.get("survey_id")
     question_id=request.GET.get("question_id")
-
 
     if not survey_id:
         return response.Response(
             {"message": "survey_id is not valid"}, status=status.HTTP_404_NOT_FOUND
         )
-    
+
     params={
         "survey":survey_id,
         "parent_question":None
@@ -67,41 +70,41 @@ def get_question_by_survey(request):
         )
 
 
-@api_view(['POST'])
+@api_view(["POST"])
+@require_roles("admin", "staff")
 def reorder_questions(request):
     new_questions=request.data
 
     if not new_questions:
         return response.Response({"message":"the array of questions is empty"},status=status.HTTP_400_BAD_REQUEST)
-    
+
     for item in new_questions:
         if 'id' not in item or 'position' not in item:
             return response.Response({"message":"each question must include id and position fields"},status=status.HTTP_400_BAD_REQUEST)
-        
+
     position_map={item['id']:item['position'] for item in new_questions}
     incoming_ids=list(position_map.keys())
-    
+
     try:
 
         questions=list(Question.objects.filter(id__in=incoming_ids))
 
         if len(questions)!=len(incoming_ids):
             return response.Response({"message":"one or more questions ids were not found"},status=status.HTTP_404_NOT_FOUND)
-    
-    
-        
+
         for question in questions:
             question.position=position_map[question.id]
-        
+
         Question.objects.bulk_update(questions,fields=['position'])
 
     except Exception as e:
         return response.Response({"message":"an unexpected error acurred during bulkupdate","error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
     return response.Response({"message":f"{len(questions)} Questions updated successfully"},status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
+@require_roles("admin", "staff")
 def get_questions_bank(request):
 
     try:

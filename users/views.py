@@ -12,6 +12,7 @@ def get_role_status(request):
             "is_authenticated": identity.is_authenticated,
             "is_admin": identity.is_admin,
             "is_observer": identity.is_observer,
+            "is_staff":identity.is_staff
         },
         status=status.HTTP_200_OK,
     )

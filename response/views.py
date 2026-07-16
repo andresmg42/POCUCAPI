@@ -13,15 +13,17 @@ from .models import QuestionCommentAnswer
 from .serializer import QuestionCommentAnswerSerializer
 from rest_framework.exceptions import ValidationError
 from zone.models import Zone
-
-
+from users.permissions import ResponsePermissions
+from users.user_utils import require_roles
 class ResponseViewSet(viewsets.ModelViewSet):
 
     queryset = Response.objects.all()
     serializer_class = ResponseSerializer
+    permission_classes=[ResponsePermissions]
 
 
 @api_view(["POST"])
+@require_roles('observer','admin','staff')
 def create_response(request):
     data = request.data
 
@@ -188,6 +190,7 @@ def validate_and_update_surveysession_state(visit_id):
 
 
 @api_view(["DELETE"])
+@require_roles('admin')
 def delete_responses_by_category(request):
 
     visit_id = request.query_params.get("visit_id")

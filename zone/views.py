@@ -2,12 +2,14 @@ from rest_framework import viewsets,status,response
 from .models import Zone
 from .serializer import ZoneSerializer
 from rest_framework.decorators import api_view
+from users.permissions import ZonePermission
 
 
 class ZoneViewSet(viewsets.ModelViewSet):
    
     queryset = Zone.objects.all()
     serializer_class = ZoneSerializer
+    permission_classes= [ZonePermission]
 
 @api_view(["GET"])
 def get_zones_by_campus(request):

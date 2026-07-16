@@ -7,12 +7,15 @@ from .serializer import ObserverSerializer
 from surveysession.models import Surveysession
 from .serializer import ObserverTableSerializer
 from django.db.models import Count, Q
+from users.permissions import ObserverPermission
+from users.user_utils import require_roles
 
 
 class ObserverViewSet(viewsets.ModelViewSet):
 
     queryset = Observer.objects.all()
     serializer_class = ObserverSerializer
+    permission_classes=[ObserverPermission]
 
 
 @api_view(["POST"])
@@ -61,6 +64,7 @@ def registre_obsever(request):
 
 
 @api_view(["GET"])
+@require_roles("staff","admin")
 def get_table_observer_info(request):
 
     survey_id = request.GET.get("survey_id")

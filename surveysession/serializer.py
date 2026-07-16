@@ -9,10 +9,7 @@ from django.db import transaction
 
 class SurveysessionSerializer(serializers.ModelSerializer):
     
-    observer = serializers.SlugRelatedField(
-        queryset=Observer.objects.all(),
-        slug_field='email' 
-    )
+    observer = serializers.ReadOnlyField(source='observer.email')
 
     
     zone = serializers.PrimaryKeyRelatedField(
@@ -129,7 +126,11 @@ class SessionReportSerializer(serializers.ModelSerializer):
         
     def get_zone_name(self,obj):
         return obj.zone.name
-        
+    
+
+
+
+
 
 
         

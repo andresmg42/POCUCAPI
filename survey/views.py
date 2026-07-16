@@ -8,14 +8,19 @@ from surveysession.models import Surveysession
 from category.models import Category
 from .serializer import SurveySerializer
 from rest_framework import status
+from users.permissions import SurveyPermissions
+from users.user_utils import require_roles
 
 class SurveyViewSet(viewsets.ModelViewSet):
 
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
+    permission_classes=[SurveyPermissions]
+
 
 
 @api_view(["GET"])
+@require_roles('observer','admin','staff')
 def list_surveys(request):
 
     try:
@@ -34,6 +39,7 @@ def list_surveys(request):
 
 
 @api_view(["GET"])
+@require_roles('observer','admin','staff')
 def get_questions_and_options(request):
 
     surveysession_id = request.GET.get("surveysession_id")
