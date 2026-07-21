@@ -28,9 +28,8 @@ class RoleBasedPermission(BasePermission):
         allowed_roles = self.action_roles.get(view.action, [])
         print('action',view.action)
         print(allowed_roles)
-        print('identity is admin',identity.is_admin)
+        print('identity observer',identity.is_observer)
         return identity.role in allowed_roles
-
 
 class QuestionPermission(RoleBasedPermission):
     pass
@@ -71,20 +70,48 @@ class SurveyPermissions(RoleBasedPermission):
 
 class SurveySessionPermissions(RoleBasedPermission):
     action_roles = {
-        "list": ["admin", "staff","observer"],
-        "retrieve": ["admin", "staff","observer"],
+        "list": ["admin", "staff", "observer"],
+        "retrieve": ["admin", "staff", "observer"],
         "create": ["admin", "staff", "observer"],
-        "update": ["admin","staff","observer"],
-        "partial_update": ["admin","staff","observer"],
-        "destroy": ["admin","staff","observer"],
+        "update": ["admin", "staff", "observer"],
+        "partial_update": ["admin", "staff", "observer"],
+        "destroy": ["admin", "staff", "observer"],
     }
 
     def has_object_permission(self, request, view, obj):
-        identity= resolve_request_identity(request)
+        identity = resolve_request_identity(request)
         if identity.is_admin:
             return True
-        
+
+        if identity.is_observer and obj.observer == identity.observer:
+            return True
+
         if identity.is_staff:
-            return view.action != 'destroy'
-        
-        return obj.observer == identity.observer
+            return view.action != "destroy"
+
+        return False
+
+
+class VisitPermissions(RoleBasedPermission):
+
+    action_roles = {
+        "list": ["admin", "staff", "observer"],
+        "retrieve": ["admin", "staff", "observer"],
+        "create": ["admin", "staff", "observer"],
+        "update": ["admin", "staff", "observer"],
+        "partial_update": ["admin", "staff", "observer"],
+        "destroy": ["admin", "staff", "observer"],
+    }
+
+    def has_object_permission(self, request, view, obj):
+        identity = resolve_request_identity(request)
+        if identity.is_admin:
+            return True
+
+        if identity.is_observer and obj.surveysession.observer == identity.observer:
+            return True
+
+        if identity.is_staff:
+            return view.action != "destroy"
+
+        return False

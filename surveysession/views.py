@@ -11,6 +11,7 @@ from django.utils import timezone
 from .serializer import SessionReportSerializer
 from users.user_utils import require_roles,filter_by_identity
 from users.permissions import SurveySessionPermissions
+from rest_framework.exceptions import PermissionDenied
 
 @api_view(["GET"])
 @require_roles("observer")
@@ -145,7 +146,22 @@ class SurveysessionViewSet(viewsets.ModelViewSet):
     def perform_create(self,serializer):
         identity=self.request.identity
 
-        if identity.is_observer and not (identity.is_admin or identity.is_staff):
+        observer= serializer.validated_data.get('observer')
+        
+
+        if observer is None:
+
+            if not identity.is_observer:
+                raise PermissionDenied(
+                    "an Observer must be specified"
+                )
+            
             serializer.save(observer=identity.observer)
-        else:
+            return
+        
+        if (identity.is_admin or identity.is_staff):
+            
             serializer.save()
+            return
+        
+        raise PermissionDenied('Observers can not create sessions to other observers')

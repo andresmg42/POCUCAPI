@@ -9,9 +9,12 @@ from django.db import transaction
 
 class SurveysessionSerializer(serializers.ModelSerializer):
     
-    observer = serializers.ReadOnlyField(source='observer.email')
+    observer = serializers.SlugRelatedField(
+        queryset=Observer.objects.all(),
+        slug_field='email',
+        required=False
+    )
 
-    
     zone = serializers.PrimaryKeyRelatedField(
         queryset=Zone.objects.all()
     )

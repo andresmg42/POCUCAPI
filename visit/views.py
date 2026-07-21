@@ -6,8 +6,12 @@ from .serializer import VisitSerializer
 from surveysession.models import Surveysession
 from django.utils import  timezone
 from response.models import Response
+from users.user_utils import require_roles
+from users.permissions import VisitPermissions
+from rest_framework.exceptions import PermissionDenied
 
 @api_view(['GET'])
+@require_roles('observer')
 def get_visits_by_id_session(request):
 
     id_surveysession=request.GET.get('surveysession_id',None)
@@ -27,6 +31,7 @@ def get_visits_by_id_session(request):
     return response.Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@require_roles('observer')
 def update_start_date(request):
 
     data=request.data
@@ -53,7 +58,6 @@ def update_start_date(request):
 
     return response.Response({'message':'visit_start_date_time and state updated successfully'},status=status.HTTP_200_OK)
 
-    
 
 class VisitViewSet(viewsets.ModelViewSet):
     """
@@ -63,6 +67,33 @@ class VisitViewSet(viewsets.ModelViewSet):
     """
     queryset = Visit.objects.all().order_by('visit_number')
     serializer_class = VisitSerializer
+    permission_classes= [VisitPermissions]
 
+    def get_queryset(self):
+
+        identity = self.request.identity
+        qs = Visit.objects.all()
+
+        if identity.is_admin or identity.is_staff:
+            return qs
+        
+        
+        return qs.filter(surveysession__observer=identity.observer)
     
+    def perform_create(self,serializer):
 
+        identity=self.request.identity
+
+        surveysession=serializer.validated_data['surveysession']
+
+        if identity.is_admin or identity.is_staff:
+            serializer.save()
+            return
+        
+        if surveysession.observer != identity.observer:
+            raise PermissionDenied(
+                'You can not craete visits for another observer'
+            )
+        
+        serializer.save()
+     
