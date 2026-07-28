@@ -7,5 +7,7 @@ router=DefaultRouter()
 router.register(r'',views.ZoneViewSet,basename='visit')
 
 urlpatterns = [
-    path('',include(router.urls))
+    path('get_zones_by_campus/',views.get_zones_by_campus,name='get_zones_by_campus'),
+    path('',include(router.urls)),
+    
 ]

@@ -20,7 +20,7 @@ class Visit(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.surveysession.survey.name}-session-{self.surveysession.number_session}-visit-{self.visit_number}'
+        return f'{self.surveysession.observer.name}-{self.surveysession.survey.name}-session-{self.surveysession.number_session}-visit-{self.visit_number}'
 
 @receiver(pre_delete,sender=Visit)
 def update_session_on_visit_delete(sender,instance,**kwargs):

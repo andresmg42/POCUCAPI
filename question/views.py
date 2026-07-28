@@ -1,7 +1,15 @@
-from rest_framework import viewsets,status,response
+from rest_framework import viewsets, status, response
 from .models import Question
-from .serializer import QuestionSerializerSimple
+from .serializer import (
+    QuestionSerializerSimple,
+    QuestionSerializer,
+    QuestionSerializer2,
+)
 from rest_framework.decorators import api_view
+from django.db import transaction
+from django.db.models import F
+from users.permissions import QuestionPermission
+from users.user_utils import require_roles
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -10,29 +18,112 @@ class QuestionViewSet(viewsets.ModelViewSet):
     This provides `list`, `create`, `retrieve`, `update`,
     and `destroy` actions automatically.
     """
+
     queryset = Question.objects.all()
-    serializer_class = QuestionSerializerSimple
+    serializer_class = QuestionSerializer2
+    permission_classes=[QuestionPermission]
 
 
-@api_view(['GET'])
+@api_view(["GET"])
+@require_roles('admin','staff','obsever')
 def get_question_by_survey(request):
-    survey_id=request.GET.get('survey_id')
-    
+    survey_id = request.GET.get("survey_id")
+    question_id=request.GET.get("question_id")
+
     if not survey_id:
-        return response.Response({'message':'survey_id is not valid'},satus=status.HTTP_404_NOT_FOUND)
+        return response.Response(
+            {"message": "survey_id is not valid"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    params={
+        "survey":survey_id,
+        "parent_question":None
+        }
+
+    if question_id:
+        params["id"]=question_id
 
     try:
 
-        questions=Question.objects.filter(survey=survey_id, parent_question=None).distinct()
+        questions = list(
+            Question.objects.filter(**params)
+            .select_related("subcategory__category")
+            .prefetch_related("options", "survey")
+            .order_by("position")
+        )
+        all_questions = list(
+            Question.objects.filter(survey=survey_id)
+            .select_related("subcategory__category", "parent_question")
+            .prefetch_related("options", "survey")
+        )
 
-        serializer=QuestionSerializerSimple(questions,many=True)
+        serializer = QuestionSerializer(
+            questions, many=True, context={"all_questions": all_questions}
+        )
 
-        return response.Response(serializer.data,status=status.HTTP_200_OK)
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return response.Response({'message':'an unexpected error has occurred','error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
-        print(e)
+        return response.Response(
+            {"message": "an unexpected error has occurred", "error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
+@api_view(["POST"])
+@require_roles("admin", "staff")
+def reorder_questions(request):
+    new_questions=request.data
+
+    if not new_questions:
+        return response.Response({"message":"the array of questions is empty"},status=status.HTTP_400_BAD_REQUEST)
+
+    for item in new_questions:
+        if 'id' not in item or 'position' not in item:
+            return response.Response({"message":"each question must include id and position fields"},status=status.HTTP_400_BAD_REQUEST)
+
+    position_map={item['id']:item['position'] for item in new_questions}
+    incoming_ids=list(position_map.keys())
+
+    try:
+
+        questions=list(Question.objects.filter(id__in=incoming_ids))
+
+        if len(questions)!=len(incoming_ids):
+            return response.Response({"message":"one or more questions ids were not found"},status=status.HTTP_404_NOT_FOUND)
+
+        for question in questions:
+            question.position=position_map[question.id]
+
+        Question.objects.bulk_update(questions,fields=['position'])
+
+    except Exception as e:
+        return response.Response({"message":"an unexpected error acurred during bulkupdate","error":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return response.Response({"message":f"{len(questions)} Questions updated successfully"},status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+@require_roles("admin", "staff")
+def get_questions_bank(request):
+
+    try:
+
+        all_questions = list(Question.objects.all().select_related("subcategory__category", "parent_question").prefetch_related("options"))
+
+        top_level_questions = sorted(
+            [q for q in all_questions if q.parent_question is None],
+            key=lambda q: q.position,
+        )
+
+        serializer = QuestionSerializer(
+            top_level_questions, many=True, context={"all_questions": all_questions}
+        )
+
+        return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return response.Response(
+            {"message": "an unexpected error has occurred", "error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
