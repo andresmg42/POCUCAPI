@@ -190,7 +190,7 @@ def validate_and_update_surveysession_state(visit_id):
 
 
 @api_view(["DELETE"])
-@require_roles('admin')
+@require_roles('admin','observer','staff')
 def delete_responses_by_category(request):
 
     visit_id = request.query_params.get("visit_id")
