@@ -56,11 +56,24 @@ class ResponsePermissions(RoleBasedPermission):
     action_roles = {
         "list": ["admin", "staff"],
         "retrieve": ["admin", "staff"],
-        "create": ["admin", "staff","observer"],
+        "create": ["admin", "staff", "observer"],
         "update": ["admin"],
         "partial_update": ["admin"],
-        "destroy": ["admin"],
+        "destroy": ["admin", "observer"],
     }
+
+    def has_object_permission(self, request, view, obj):
+            identity = resolve_request_identity(request)
+            if identity.is_admin:
+                return True
+    
+            if identity.is_observer and obj.observer == identity.observer:
+                return True
+    
+            if identity.is_staff:
+                return view.action != "destroy"
+    
+            return False
 
 class SubcategoryPermissions(RoleBasedPermission):
     pass
