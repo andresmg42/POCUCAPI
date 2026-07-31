@@ -27,7 +27,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-
 def get_categories(request):
     surveysession_id = request.GET.get('surveysession_id')
     
