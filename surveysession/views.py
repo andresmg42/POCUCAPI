@@ -9,7 +9,7 @@ from zone.models import Zone
 from observer.models import Observer
 from django.utils import timezone
 from .serializer import SessionReportSerializer
-from users.user_utils import require_roles,filter_by_identity
+from users.user_utils import require_roles
 from users.permissions import SurveySessionPermissions
 from rest_framework.exceptions import PermissionDenied
 

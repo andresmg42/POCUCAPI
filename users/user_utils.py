@@ -95,9 +95,4 @@ def require_roles(*roles):
     return decorator
 
 
-def filter_by_identity(queryset, request, owner_field="observer"):
-    identity=resolve_request_identity(request)
-    if identity.is_admin or identity.is_staff:
-        return queryset
 
-    return queryset.filter(**{owner_field: identity.observer})
