@@ -1,7 +1,7 @@
 # users/permissions.py
 from rest_framework.permissions import BasePermission
 from .user_utils import resolve_request_identity
-
+import os
 
 class RoleBasedPermission(BasePermission):
     """
@@ -29,6 +29,7 @@ class RoleBasedPermission(BasePermission):
         print('action',view.action)
         print(allowed_roles)
         print('identity observer',identity.is_observer)
+        print('identity admin:',identity.is_admin)
         return identity.role in allowed_roles
 
 class QuestionPermission(RoleBasedPermission):
@@ -128,3 +129,25 @@ class VisitPermissions(RoleBasedPermission):
             return view.action != "destroy"
 
         return False
+
+class UserPermissions(RoleBasedPermission):
+        action_roles = {
+                "list": ["admin", "staff"],
+                "retrieve": ["admin", "staff"],
+                "create": ["admin"],
+                "update": ["admin"],
+                "partial_update": ["admin"],
+                "destroy": ["admin"],
+            } 
+
+        def has_object_permission(self,request,view,obj):
+            identity=resolve_request_identity(request)
+            admin_email=os.environ.get("ADMIN_EMAIL","andres.david.ortega@gmail.com")
+            if identity.is_admin:
+                if view.action=="destroy" and obj.email==admin_email :
+                    return False
+
+            if identity.is_staff:
+                        return view.action != "destroy"
+            
+            return True

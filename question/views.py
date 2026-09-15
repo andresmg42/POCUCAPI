@@ -25,7 +25,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 
 @api_view(["GET"])
-@require_roles('admin','staff','obsever')
+@require_roles('admin','staff','observer')
 def get_question_by_survey(request):
     survey_id = request.GET.get("survey_id")
     question_id=request.GET.get("question_id")
