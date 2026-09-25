@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     "pocucstats.apps.PocucstatsConfig",
     "campus.apps.CampusConfig",
     "drf_spectacular",
-    "users.apps.UsersConfig"
+    "users.apps.UsersConfig",
+    "analytics.apps.AnalyticsConfig"
 ]
 
 REST_FRAMEWORK = {
@@ -113,7 +114,16 @@ if IS_PRODUCTION:
             "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
             "HOST": os.environ.get("DATABASE_HOST"),
             "PORT": "3306",
-        }
+        },
+        "analytics_readonly": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.environ["DATABASE_NAME"],
+            "USER": "analytics_readonly",
+            "PASSWORD": os.environ["ANALYTICS_DB_PASSWORD"],
+            "HOST": os.environ.get("DATABASE_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "3306"),
+            "OPTIONS": {"charset": "utf8mb4"},
+        },
     }
 else:
     DATABASES = {
